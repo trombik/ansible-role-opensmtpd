@@ -1,0 +1,37 @@
+---
+# tasks file for ansible-role-opensmtpd
+
+- include_vars: "{{ ansible_os_family }}.yml"
+
+- include: "install-{{ ansible_os_family }}.yml"
+
+- name: Create log directory
+  file:
+    path: "{{ opensmtpd_log_dir }}"
+    mode: 0755
+    owner: "{{ opensmtpd_user }}"
+    group: "{{ opensmtpd_group }}"
+    state: directory
+  notify: Restart opensmtpd
+
+- name: Create db directory
+  file:
+    path: "{{ opensmtpd_db_dir }}"
+    mode: 0755
+    owner: "{{ opensmtpd_user }}"
+    group: "{{ opensmtpd_group }}"
+    state: directory
+  notify: Restart opensmtpd
+
+- name: Create opensmtpd.conf
+  template:
+    src: opensmtpd.conf.j2
+    dest: "{{ opensmtpd_conf_file }}"
+    validate: echo %s
+  notify: Restart opensmtpd
+
+- name: Start opensmtpd
+  service:
+    name: "{{ opensmtpd_service }}"
+    enabled: true
+    state: started

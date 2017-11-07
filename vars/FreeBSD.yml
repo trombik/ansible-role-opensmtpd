@@ -1,0 +1,2 @@
+__opensmtpd_db_dir: /var/db/opensmtpd
+__opensmtpd_conf_dir: /usr/local/etc/opensmtpd

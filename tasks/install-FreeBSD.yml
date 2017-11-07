@@ -1,0 +1,6 @@
+---
+
+- name: Install opensmtpd
+  pkgng:
+    name: opensmtpd
+    state: present

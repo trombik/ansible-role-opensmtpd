@@ -1,0 +1,8 @@
+opensmtpd_user: opensmtpd
+opensmtpd_group: opensmtpd
+opensmtpd_log_dir: /var/log/opensmtpd
+opensmtpd_db_dir: "{{ __opensmtpd_db_dir }}"
+opensmtpd_service: opensmtpd
+opensmtpd_conf_dir: "{{ __opensmtpd_conf_dir }}"
+opensmtpd_conf_file: "{{ __opensmtpd_conf_dir }}/opensmtpd.conf"
+opensmtpd_flags: ""
