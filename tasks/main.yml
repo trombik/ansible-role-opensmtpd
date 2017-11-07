@@ -5,33 +5,19 @@
 
 - include: "install-{{ ansible_os_family }}.yml"
 
-- name: Create log directory
+- name: Create opensmtpd_conf_dir
   file:
-    path: "{{ opensmtpd_log_dir }}"
-    mode: 0755
-    owner: "{{ opensmtpd_user }}"
-    group: "{{ opensmtpd_group }}"
+    dest: "{{ opensmtpd_conf_dir }}"
     state: directory
-  notify: Restart opensmtpd
 
-- name: Create db directory
-  file:
-    path: "{{ opensmtpd_db_dir }}"
-    mode: 0755
-    owner: "{{ opensmtpd_user }}"
-    group: "{{ opensmtpd_group }}"
-    state: directory
-  notify: Restart opensmtpd
-
-- name: Create opensmtpd.conf
+- name: Create smtpd.conf(5)
   template:
-    src: opensmtpd.conf.j2
+    src: smtpd.conf.j2
     dest: "{{ opensmtpd_conf_file }}"
-    validate: echo %s
+    validate: smtpd -n -f %s
   notify: Restart opensmtpd
 
 - name: Start opensmtpd
   service:
     name: "{{ opensmtpd_service }}"
-    enabled: true
     state: started

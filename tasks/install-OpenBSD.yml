@@ -1,0 +1,12 @@
+---
+
+- name: Enable opensmtpd_service
+  service:
+    name: "{{ opensmtpd_service }}"
+    arguments: "{{ opensmtpd_flags }}"
+    enabled: yes
+
+- name: Install opensmtpd_extra_packages
+  openbsd_pkg:
+    name: "{{ item }}"
+  with_items: "{{ opensmtpd_extra_packages }}"

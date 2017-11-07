@@ -2,5 +2,5 @@
 
 - name: Restart opensmtpd
   service:
-    name: opensmtpd
+    name: "{{ opensmtpd_service }}"
     state: restarted
