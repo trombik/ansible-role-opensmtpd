@@ -1,6 +1,6 @@
 # ansible-role-opensmtpd
 
-A brief description of the role goes here.
+Configure `smtpd(8)`, aka [OpenSMTPD](https://www.opensmtpd.org/).
 
 # Requirements
 
@@ -8,9 +8,29 @@ None
 
 # Role Variables
 
-| variable | description | default |
+| Variable | Description | Default |
 |----------|-------------|---------|
+| `opensmtpd_user` | user name of `smtpd(8)` | `{{ __opensmtpd_user }}` |
+| `opensmtpd_group` | group name of `smtpd(8)` | `{{ __opensmtpd_group }}` |
+| `opensmtpd_service` | service name of `smtpd(8)` | `{{ __opensmtpd_service }}` |
+| `opensmtpd_conf_dir` | path to configuration directory | `{{ __opensmtpd_conf_dir }}` |
+| `opensmtpd_conf_file` | path to `smtpd.conf(5)` | `{{ __opensmtpd_conf_dir }}/smtpd.conf` |
+| `opensmtpd_aliases_file` | path to `aliases(5)` | `{{ __opensmtpd_conf_dir }}/aliases` |
+| `opensmtpd_flags` | optional flags for `smtpd(8)` | `""` |
+| `opensmtpd_package_name` | package name of OpenSMTPD | `{{ __opensmtpd_package_name }}` |
+| `opensmtpd_extra_packages` | list of extra packages to install | `[]` |
+| `opensmtpd_config` | content of `smtpd.conf(5)` | `""` |
 
+
+## OpenBSD
+
+| Variable | Default |
+|----------|---------|
+| `__opensmtpd_user` | `_smtpd` |
+| `__opensmtpd_group` | `_smtpd` |
+| `__opensmtpd_service` | `smtpd` |
+| `__opensmtpd_conf_dir` | `/etc/mail` |
+| `__opensmtpd_package_name` | `""` |
 
 # Dependencies
 
@@ -19,6 +39,16 @@ None
 # Example Playbook
 
 ```yaml
+- hosts: localhost
+  roles:
+    - ansible-role-opensmtpd
+  vars:
+    opensmtpd_flags: -v
+    opensmtpd_config: |
+      table aliases file:{{ opensmtpd_aliases_file }}
+      listen on lo0
+      accept for local alias <aliases> deliver to mbox
+      accept from local for any relay
 ```
 
 # License

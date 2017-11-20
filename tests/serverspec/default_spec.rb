@@ -1,49 +1,38 @@
 require "spec_helper"
 require "serverspec"
 
-package = "opensmtpd"
-service = "opensmtpd"
-config  = "/etc/opensmtpd/opensmtpd.conf"
-user    = "opensmtpd"
-group   = "opensmtpd"
-ports   = [PORTS]
-log_dir = "/var/log/opensmtpd"
-db_dir  = "/var/lib/opensmtpd"
+service = "smtpd"
+config_dir = "/etc/mail"
+config  = "#{config_dir}/smtpd.conf"
+aliases = "/etc/mail/aliases"
+ports   = [25]
+default_user = "root"
+default_group = "wheel"
 
-case os[:family]
-when "freebsd"
-  config = "/usr/local/etc/opensmtpd.conf"
-  db_dir = "/var/db/opensmtpd"
-end
-
-describe package(package) do
-  it { should be_installed }
+describe file(config_dir) do
+  it { should exist }
+  it { should be_directory }
+  it { should be_mode 755 }
+  it { should be_owned_by default_user }
+  it { should be_grouped_into default_group }
 end
 
 describe file(config) do
+  it { should exist }
   it { should be_file }
-  its(:content) { should match Regexp.escape("opensmtpd") }
+  it { should be_mode 644 }
+  it { should be_owned_by default_user }
+  it { should be_grouped_into default_group }
+  its(:content) { should match(/^table aliases file:#{Regexp.escape(aliases)}$/) }
+  its(:content) { should match(/^listen on lo0$/) }
+  its(:content) { should match(/^accept for local alias <aliases> deliver to mbox$/) }
+  its(:content) { should match(/^accept from local for any relay$/) }
 end
 
-describe file(log_dir) do
-  it { should exist }
-  it { should be_mode 755 }
-  it { should be_owned_by user }
-  it { should be_grouped_into group }
-end
-
-describe file(db_dir) do
-  it { should exist }
-  it { should be_mode 755 }
-  it { should be_owned_by user }
-  it { should be_grouped_into group }
-end
-
-case os[:family]
-when "freebsd"
-  describe file("/etc/rc.conf.d/opensmtpd") do
-    it { should be_file }
-  end
+describe command("rcctl get smtpd flags") do
+  its(:exit_status) { should eq 0 }
+  its(:stdout) { should eq "-v\n" }
+  its(:stderr) { should eq "" }
 end
 
 describe service(service) do

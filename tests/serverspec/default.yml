@@ -2,4 +2,9 @@
   roles:
     - ansible-role-opensmtpd
   vars:
-    opensmtpd_config: ""
+    opensmtpd_flags: -v
+    opensmtpd_config: |
+      table aliases file:{{ opensmtpd_aliases_file }}
+      listen on lo0
+      accept for local alias <aliases> deliver to mbox
+      accept from local for any relay
