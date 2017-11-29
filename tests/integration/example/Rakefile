@@ -6,10 +6,10 @@ require "tempfile"
 test_dir = Pathname.new(__FILE__).dirname
 role_dir = Pathname.new(test_dir).parent.parent.parent
 role_name = Pathname.new(role_dir).basename
-required_roles = %w(
-)
+required_roles = %w[
+]
 
-task default: %w(test)
+task default: %w[test]
 
 desc "run rspec"
 task test: [:clean, :prepare, :do_test, :ensure_clean] do
@@ -50,7 +50,7 @@ end
 
 desc "prepare role"
 task :prepare_role do
-  ignore = %w(vendor .kitchen .git tests spec).map { |f| "#{role_name}/#{f}" }
+  ignore = %w[vendor .kitchen .git tests spec].map { |f| "#{role_name}/#{f}" }
   tmpfile = Tempfile.new(".tarignore")
   tmpfile.write ignore.join("\n")
   tmpfile.close
