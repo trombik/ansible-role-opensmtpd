@@ -2,9 +2,41 @@
   roles:
     - ansible-role-opensmtpd
   vars:
+    opensmtpd_virtual_user:
+      name: vmail
+      group: vmail
+      home: /var/vmail
+      comment: Virtual Mail User
+    opensmtpd_tables:
+      - name: domains
+        path: /etc/mail/domains
+        type: file
+        owner: root
+        group: wheel
+        mode: "0644"
+        values:
+          - example.org
+          - example.net
+      - name: virtuals
+        path: /etc/mail/virtuals
+        type: file
+        owner: root
+        group: vmail
+        mode: "0640"
+        values:
+          - abuse@example.org john@example.org
+          - postmaster@example.org john@example.org
+          - john@example.org {{ opensmtpd_virtual_user.name }}
+          - abuse@example.net john@example.net
+          - postmaster@example.net john@example.net
+          - john@example.net {{ opensmtpd_virtual_user.name }}
+
     opensmtpd_flags: -v
     opensmtpd_config: |
       table aliases file:{{ opensmtpd_aliases_file }}
-      listen on lo0
-      accept for local alias <aliases> deliver to mbox
-      accept from local for any relay
+      {% for list in opensmtpd_tables %}
+      table {{ list.name }} {{ list.type }}:{{ list.path }}
+      {% endfor %}
+      listen on lo0 port 25
+      accept from any for domain <domains> virtual <virtuals> \
+        deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"

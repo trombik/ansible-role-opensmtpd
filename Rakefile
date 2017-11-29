@@ -5,7 +5,7 @@ integration_test_dir = root_dir + "tests" + "integration"
 integration_test_dirs = Pathname.new(integration_test_dir)
                                 .children.select(&:directory?)
 
-task default: %w(test)
+task default: %w[test]
 
 desc "run all tests"
 task :test do

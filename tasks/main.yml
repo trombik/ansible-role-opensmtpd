@@ -5,10 +5,53 @@
 
 - include: "install-{{ ansible_os_family }}.yml"
 
+- name: Assert opensmtpd_virtual_user has mandatory keys
+  assert:
+    that:
+      - "'name' in opensmtpd_virtual_user"
+      - opensmtpd_virtual_user.name | length > 0
+      - "'group' in opensmtpd_virtual_user"
+      - opensmtpd_virtual_user.group | length > 0
+      - "'home' in opensmtpd_virtual_user"
+      - opensmtpd_virtual_user.home | length > 0
+
 - name: Create opensmtpd_conf_dir
   file:
     dest: "{{ opensmtpd_conf_dir }}"
     state: directory
+
+- name: Create a primary group for opensmtpd_virtual_user
+  group:
+    gid: "{{ opensmtpd_virtual_user.gid | default(omit) }}"
+    name: "{{ opensmtpd_virtual_user.group }}"
+    state: present
+  when:
+    - opensmtpd_virtual_user is defined
+    - opensmtpd_virtual_user.name | length > 0
+
+- name: Create opensmtpd_virtual_user
+  user:
+    comment: "{{ opensmtpd_virtual_user.comment | default(omit) }}"
+    createhome: yes
+    group: "{{ opensmtpd_virtual_user.group }}"
+    groups: "{{ opensmtpd_virtual_user.groups | default(omit) }}"
+    home: "{{ opensmtpd_virtual_user.home }}"
+    name: "{{ opensmtpd_virtual_user.name }}"
+    state: present
+    shell: /sbin/nologin
+    uid: "{{ opensmtpd_virtual_user.uid | default(omit) }}"
+  when:
+    - opensmtpd_virtual_user is defined
+    - opensmtpd_virtual_user.name | length > 0
+
+- name: Create opensmtpd_tables
+  template:
+    src: table.j2
+    dest: "{{ item.path }}"
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    mode: "{{ item.mode | default(omit) }}"
+  with_items: "{{ opensmtpd_tables }}"
 
 - name: Create smtpd.conf(5)
   template:
