@@ -3,6 +3,7 @@ galaxy_info:
   author: Tomoyuki Sakurai
   description: Configures OpenSMTPD
   license: BSD
+  company: N/A
   min_ansible_version: 2.0
   platforms:
   - name: FreeBSD
