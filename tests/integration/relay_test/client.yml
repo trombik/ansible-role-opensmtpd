@@ -1,5 +1,5 @@
 ---
-- hosts: server
+- hosts: client
   become: yes
   become_method: sudo
   environment:
@@ -9,4 +9,3 @@
 
   pre_tasks:
   roles:
-    - opensmtpd

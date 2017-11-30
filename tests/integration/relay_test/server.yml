@@ -1,0 +1,54 @@
+---
+- hosts: server
+  become: yes
+  become_method: sudo
+  environment:
+    http_proxy: "{{ http_proxy | default() }}"
+    https_proxy: "{{ https_proxy | default() }}"
+    no_proxy: "{{ no_proxy | default() }}"
+
+  pre_tasks:
+  roles:
+    - ansible-role-opensmtpd
+  vars:
+    opensmtpd_virtual_user:
+      name: vmail
+      group: vmail
+      home: /var/vmail
+      comment: Virtual Mail User
+    opensmtpd_tables:
+      - name: domains
+        path: /etc/mail/domains
+        type: file
+        owner: root
+        group: wheel
+        mode: "0644"
+        values:
+          - example.org
+          - example.net
+      - name: virtuals
+        path: /etc/mail/virtuals
+        type: db
+        dbtype: hash
+        format: aliases
+        owner: root
+        group: vmail
+        mode: "0444"
+        values:
+          - abuse@example.org john@example.org
+          - postmaster@example.org john@example.org
+          - john@example.org {{ opensmtpd_virtual_user.name }}
+          - abuse@example.net john@example.net
+          - postmaster@example.net john@example.net
+          - john@example.net {{ opensmtpd_virtual_user.name }}
+
+    opensmtpd_flags: -v
+    opensmtpd_config: |
+      table aliases file:{{ opensmtpd_aliases_file }}
+      {% for list in opensmtpd_tables %}
+      table {{ list.name }} {{ list.type }}:{{ list.path }}{% if list['type'] == 'db' %}.db{% endif %}
+
+      {% endfor %}
+      listen on em1 port 25
+      accept from any for domain <domains> virtual <virtuals> \
+        deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
