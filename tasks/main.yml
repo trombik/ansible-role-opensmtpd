@@ -3,8 +3,6 @@
 
 - include_vars: "{{ ansible_os_family }}.yml"
 
-- include: "install-{{ ansible_os_family }}.yml"
-
 - name: Assert opensmtpd_virtual_user has mandatory keys
   assert:
     that:
@@ -14,6 +12,24 @@
       - opensmtpd_virtual_user.group | length > 0
       - "'home' in opensmtpd_virtual_user"
       - opensmtpd_virtual_user.home | length > 0
+  when:
+    - opensmtpd_virtual_user is defined
+
+- name: Assert items in opensmtpd_tables have mandatory keys
+  assert:
+    that:
+      - "'name' in item"
+      - "'path' in item"
+      - "'type' in item"
+      - "'values' in item"
+      - item['name'] | length > 0
+      - item['path'] | length > 0
+      - item['type'] == 'file' or item['type'] == 'db'
+  with_items: "{{ opensmtpd_tables }}"
+  when:
+    - opensmtpd_tables | length > 0
+
+- include: "install-{{ ansible_os_family }}.yml"
 
 - name: Create opensmtpd_conf_dir
   file:
@@ -27,7 +43,6 @@
     state: present
   when:
     - opensmtpd_virtual_user is defined
-    - opensmtpd_virtual_user.name | length > 0
 
 - name: Create opensmtpd_virtual_user
   user:
@@ -42,7 +57,6 @@
     uid: "{{ opensmtpd_virtual_user.uid | default(omit) }}"
   when:
     - opensmtpd_virtual_user is defined
-    - opensmtpd_virtual_user.name | length > 0
 
 - name: Create opensmtpd_tables
   template:
@@ -52,6 +66,31 @@
     group: "{{ item.group | default(omit) }}"
     mode: "{{ item.mode | default(omit) }}"
   with_items: "{{ opensmtpd_tables }}"
+  register: __register_opensmtpd_tables
+
+- name: Update db tables for smtpd
+  # XXX this cannot be a hanldler because:
+  # * the mapped database files must be created before smtpd(8) checks
+  # smtpd.conf(5)'s syntax
+  # * flashing handlers is the last option
+  command: "makemap -d {{ item.dbtype | default('hash') }} {{ item.path }}"
+  with_items: "{{ __register_opensmtpd_tables.results | selectattr('changed') | map(attribute='item') | list }}"
+  when:
+    - "'type' in item"
+    - "item.type == 'db'"
+
+- name: See if database files have been created
+  command: "test -f {{ item.path }}.db"
+  failed_when: false
+  changed_when: false
+  register: __register_opensmtpd_database_files
+  with_items: "{{ opensmtpd_tables | selectattr('type', 'equalto', 'db') | list }}"
+
+- name: Create database files if not exist
+  # XXX makemap.c defines T_PLAIN in enum output_type, but getopt in it does
+  # not accept `-t plain`. enclose it with `if`
+  command: "makemap -d {{ item.dbtype | default('hash') }} {% if 'format' in item %}-t {{ item.format }}{% endif %} {{ item.path }}"
+  with_items: "{{ __register_opensmtpd_database_files.results | selectattr('rc', 'equalto', 1) | map(attribute='item') | list }}"
 
 - name: Create smtpd.conf(5)
   template:

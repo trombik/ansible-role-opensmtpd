@@ -2,8 +2,8 @@
 galaxy_info:
   author: Tomoyuki Sakurai
   description: Configures OpenSMTPD
-  company: Reallyenglish
   license: BSD
+  company: N/A
   min_ansible_version: 2.0
   platforms:
   - name: FreeBSD
@@ -13,6 +13,7 @@ galaxy_info:
     versions:
     - 6.0
     - 6.1
+#   - 6.2
 #  - name: Ubuntu
 #    versions:
 #    - trusty
@@ -24,6 +25,4 @@ galaxy_info:
   galaxy_tags:
     - smtpd
     - opensmtpd
-#dependencies:
-#  - role: username.common
-#    when: some_parameter == 1
+dependencies:

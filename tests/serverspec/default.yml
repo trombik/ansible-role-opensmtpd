@@ -19,10 +19,12 @@
           - example.net
       - name: virtuals
         path: /etc/mail/virtuals
-        type: file
+        type: db
+        dbtype: hash
+        format: aliases
         owner: root
         group: vmail
-        mode: "0640"
+        mode: "0444"
         values:
           - abuse@example.org john@example.org
           - postmaster@example.org john@example.org
@@ -35,7 +37,8 @@
     opensmtpd_config: |
       table aliases file:{{ opensmtpd_aliases_file }}
       {% for list in opensmtpd_tables %}
-      table {{ list.name }} {{ list.type }}:{{ list.path }}
+      table {{ list.name }} {{ list.type }}:{{ list.path }}{% if list['type'] == 'db' %}.db{% endif %}
+
       {% endfor %}
       listen on lo0 port 25
       accept from any for domain <domains> virtual <virtuals> \
