@@ -24,8 +24,8 @@ tables = [
     matches: [/^example\.org$/, /^example\.net$/] },
   { path: "/etc/mail/virtuals",
     name: "virtuals",
-    type: "file",
-    mode: 640,
+    type: "db",
+    mode: 444,
     owner: default_user,
     group: virtual_user[:group],
     matches: [
@@ -77,6 +77,17 @@ tables.each do |t|
   end
 end
 
+tables.each do |t|
+  next unless t[:type] == "db"
+  describe file("#{t[:path]}.db") do
+    it { should exist }
+    it { should be_file }
+    it { should be_owned_by t[:owner] }
+    it { should be_grouped_into t[:group] }
+    it { should be_mode t[:mode] }
+  end
+end
+
 describe file(config) do
   it { should exist }
   it { should be_file }
@@ -85,7 +96,8 @@ describe file(config) do
   it { should be_grouped_into default_group }
   its(:content) { should match(/^table aliases file:#{Regexp.escape(aliases)}$/) }
   tables.each do |t|
-    its(:content) { should match(/^table #{t[:name]} #{t[:type]}:#{t[:path]}$/) }
+    path = t[:type] == "db" ? "#{t[:path]}.db" : t[:path]
+    its(:content) { should match(/^table #{t[:name]} #{t[:type]}:#{path}$/) }
   end
   its(:content) { should match(/^listen on lo0 port 25$/) }
   # rubocop:disable Style/FormatStringToken

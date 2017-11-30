@@ -44,6 +44,17 @@ platforms:
       extra_vars:
         ansible_python_interpreter: '/usr/local/bin/python'
 
+  - name: openbsd-6.2-amd64
+    driver:
+      box: trombik/ansible-openbsd-6.2-amd64
+      box_check_update: false
+    driver_config:
+      ssh:
+        shell: '/bin/sh'
+    provisioner:
+      extra_vars:
+        ansible_python_interpreter: '/usr/local/bin/python'
+
 suites:
   - name: default
     provisioner:
