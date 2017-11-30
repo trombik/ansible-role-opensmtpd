@@ -11,7 +11,7 @@ context "when the SMTP client is third-party" do
     before(:each) { smtp.mailfrom "foo@example.com" }
     after(:each) { smtp.finish }
 
-    let(:mandatory_local_parts) { ["abuse", "postmaster"] }
+    let(:mandatory_local_parts) { %w[abuse postmaster] }
 
     ["example.org", "example.net"].each do |domain|
       it "accepts a message to mandatory addresses in #{domain}" do
