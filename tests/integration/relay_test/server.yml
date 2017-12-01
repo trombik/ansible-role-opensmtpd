@@ -13,11 +13,11 @@
     - trombik.x509-certificate
     - ansible-role-opensmtpd
   vars:
-    pf_rules: |
+    pf_rule: |
       set skip on { lo }
       block log all
       # block any out-going SMTP session
-      block quick on egress from (egress) to any port smtp
+      block quick on egress proto tcp from (egress) to any port smtp
       pass
     opensmtpd_virtual_user:
       name: vmail
