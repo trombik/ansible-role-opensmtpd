@@ -13,11 +13,11 @@
     - trombik.x509-certificate
     - ansible-role-opensmtpd
   vars:
-    pf_rules: |
+    pf_rule: |
       set skip on { lo }
       block log all
       # block any out-going SMTP session
-      block quick on egress from (egress) to any port smtp
+      block quick on egress proto tcp from (egress) to any port smtp
       pass
     opensmtpd_virtual_user:
       name: vmail
@@ -25,17 +25,34 @@
       home: /var/vmail
       comment: Virtual Mail User
     opensmtpd_tables:
+      - name: secrets
+        path: "{{ opensmtpd_conf_dir }}/secrets"
+        type: file
+        owner: root
+        group: "{{ opensmtpd_group }}"
+        mode: "0640"
+        values:
+          # smtpctl encrypt PassWord
+          - john@example.org $2b$08$LT/AdE2YSHb19d3hB27.4uXd1/Cj0qQIWc4FdfLlcuqnCUGbRu2Mq
       - name: domains
-        path: /etc/mail/domains
+        path: "{{ opensmtpd_conf_dir }}/domains"
         type: file
         owner: root
         group: wheel
         mode: "0644"
+        no_log: no
         values:
           - example.org
           - example.net
+      - name: mynetworks
+        path: "{{ opensmtpd_conf_dir }}/mynetworks"
+        type: db
+        format: set
+        no_log: no
+        values:
+          - 192.168.21.100/32
       - name: virtuals
-        path: /etc/mail/virtuals
+        path: "{{ opensmtpd_conf_dir }}/virtuals"
         type: db
         dbtype: hash
         format: aliases
@@ -61,11 +78,14 @@
 
       {% endfor %}
       listen on em1 port 25
-      listen on em1 port 587 tls-require pki a.mx.trombik.org auth hostname \
+      listen on em1 port 587 smtps pki a.mx.trombik.org auth <secrets> hostname \
         a.mx.trombik.org received-auth
+
+      accept authenticated for any relay
       accept from any for domain <domains> virtual <virtuals> \
         deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
-      accept from local for any
+      accept from source <mynetworks> for any relay
+      accept from local for any relay
     x509_certificate:
       - name: a.mx.trombik.org
         state: present

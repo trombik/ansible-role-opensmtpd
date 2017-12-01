@@ -52,6 +52,7 @@ This list variable defines list of dict of `table(5)`.
 | `format` | The format of the resulting map file, see `-t type` in `makemap(8)` for possible values. Ignored unless `type` is `db` | no |
 | `mode` | String of file mode of the file. Note that you should almost always quote it. | no |
 | `values` | List of content of the file. See `table(5)`. | yes |
+| `no_log` | When `yes`, enable `no_log` in the template task. Setting this to `no` causes everything in the variable logged, including credentials. The default is `yes` | no |
 
 ## OpenBSD
 
@@ -80,17 +81,28 @@ None
       home: /var/vmail
       comment: Virtual Mail User
     opensmtpd_tables:
+      - name: secrets
+        path: "{{ opensmtpd_conf_dir }}/secrets"
+        type: file
+        owner: root
+        group: "{{ opensmtpd_group }}"
+        mode: "0640"
+        no_log: yes
+        values:
+          # smtpctl encrypt PassWord
+          - john@example.org $2b$08$LT/AdE2YSHb19d3hB27.4uXd1/Cj0qQIWc4FdfLlcuqnCUGbRu2Mq
       - name: domains
-        path: /etc/mail/domains
+        path: "{{ opensmtpd_conf_dir }}/domains"
         type: file
         owner: root
         group: wheel
         mode: "0644"
+        no_log: no
         values:
           - example.org
           - example.net
       - name: virtuals
-        path: /etc/mail/virtuals
+        path: "{{ opensmtpd_conf_dir }}/virtuals"
         type: db
         dbtype: hash
         format: aliases
@@ -104,6 +116,13 @@ None
           - abuse@example.net john@example.net
           - postmaster@example.net john@example.net
           - john@example.net {{ opensmtpd_virtual_user.name }}
+      - name: mynetworks
+        path: /etc/mail/mynetworks
+        type: db
+        format: set
+        no_log: no
+        values:
+          - 192.168.21.0/24
 
     opensmtpd_flags: -v
     opensmtpd_config: |
@@ -115,6 +134,7 @@ None
       listen on lo0 port 25
       accept from any for domain <domains> virtual <virtuals> \
         deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
+      accept from source <mynetworks> for any relay
 ```
 
 # License

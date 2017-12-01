@@ -1,6 +1,12 @@
 ---
 # tasks file for ansible-role-opensmtpd
 
+# XXX when using opensmtpd_tables, always use:
+#
+# no_log: "{{ item['no_log'] | default('yes') }}"
+#
+# because the table might contain secrets
+
 - include_vars: "{{ ansible_os_family }}.yml"
 
 - name: Assert opensmtpd_virtual_user has mandatory keys
@@ -25,6 +31,7 @@
       - item['name'] | length > 0
       - item['path'] | length > 0
       - item['type'] == 'file' or item['type'] == 'db'
+  no_log: "{{ item['no_log'] | default('yes') }}"
   with_items: "{{ opensmtpd_tables }}"
   when:
     - opensmtpd_tables | length > 0
@@ -65,6 +72,7 @@
     owner: "{{ item.owner | default(omit) }}"
     group: "{{ item.group | default(omit) }}"
     mode: "{{ item.mode | default(omit) }}"
+  no_log: "{{ item.no_log | default('yes') }}"
   with_items: "{{ opensmtpd_tables }}"
   register: __register_opensmtpd_tables
 
@@ -73,8 +81,9 @@
   # * the mapped database files must be created before smtpd(8) checks
   # smtpd.conf(5)'s syntax
   # * flashing handlers is the last option
-  command: "makemap -d {{ item.dbtype | default('hash') }} {{ item.path }}"
+  command: "makemap -d {{ item.dbtype | default('hash') }}{% if \"'format' in item\" %} -t {{ item.format }}{% endif %} {{ item.path }}"
   with_items: "{{ __register_opensmtpd_tables.results | selectattr('changed') | map(attribute='item') | list }}"
+  no_log: "{{ item.no_log | default('yes') }}"
   when:
     - "'type' in item"
     - "item.type == 'db'"
@@ -84,12 +93,14 @@
   failed_when: false
   changed_when: false
   register: __register_opensmtpd_database_files
+  no_log: "{{ item.no_log | default('yes') }}"
   with_items: "{{ opensmtpd_tables | selectattr('type', 'equalto', 'db') | list }}"
 
 - name: Create database files if not exist
   # XXX makemap.c defines T_PLAIN in enum output_type, but getopt in it does
   # not accept `-t plain`. enclose it with `if`
-  command: "makemap -d {{ item.dbtype | default('hash') }} {% if 'format' in item %}-t {{ item.format }}{% endif %} {{ item.path }}"
+  command: "makemap -d {{ item.dbtype | default('hash') }}{% if \"'format' in item\" %} -t {{ item.format }}{% endif %} {{ item.path }}"
+  no_log: "{{ item.no_log | default('yes') }}"
   with_items: "{{ __register_opensmtpd_database_files.results | selectattr('rc', 'equalto', 1) | map(attribute='item') | list }}"
 
 - name: Create smtpd.conf(5)
