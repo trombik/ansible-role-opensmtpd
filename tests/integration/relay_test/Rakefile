@@ -9,6 +9,12 @@ role_name = Pathname.new(role_dir).basename
 required_roles = %w[
 ]
 
+def vagrant(cmd)
+  Bundler.with_clean_env do
+    sh "vagrant #{cmd}"
+  end
+end
+
 task default: %w[test]
 
 desc "run rspec"
@@ -21,7 +27,7 @@ end
 
 desc "destroy vagrant nodes"
 task :clean_vagrant do
-  sh "vagrant destroy -f"
+  vagrant "destroy -f"
 end
 
 desc "rm roles/*"
@@ -61,7 +67,7 @@ end
 
 desc "vagrant up"
 task :vagrant_up do
-  sh "vagrant up"
+  vagrant "up"
 end
 
 desc "do clean task even if it has been executed"
