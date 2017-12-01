@@ -8,17 +8,28 @@
       home: /var/vmail
       comment: Virtual Mail User
     opensmtpd_tables:
+      - name: secrets
+        path: "{{ opensmtpd_conf_dir }}/secrets"
+        type: file
+        owner: root
+        group: "{{ opensmtpd_group }}"
+        mode: "0640"
+        no_log: yes
+        values:
+          # smtpctl encrypt PassWord
+          - john@example.org $2b$08$LT/AdE2YSHb19d3hB27.4uXd1/Cj0qQIWc4FdfLlcuqnCUGbRu2Mq
       - name: domains
-        path: /etc/mail/domains
+        path: "{{ opensmtpd_conf_dir }}/domains"
         type: file
         owner: root
         group: wheel
         mode: "0644"
+        no_log: no
         values:
           - example.org
           - example.net
       - name: virtuals
-        path: /etc/mail/virtuals
+        path: "{{ opensmtpd_conf_dir }}/virtuals"
         type: db
         dbtype: hash
         format: aliases
@@ -32,6 +43,13 @@
           - abuse@example.net john@example.net
           - postmaster@example.net john@example.net
           - john@example.net {{ opensmtpd_virtual_user.name }}
+      - name: mynetworks
+        path: "{{ opensmtpd_conf_dir }}/mynetworks"
+        type: db
+        format: set
+        no_log: no
+        values:
+          - 192.168.21.0/24
 
     opensmtpd_flags: -v
     opensmtpd_config: |
@@ -43,3 +61,4 @@
       listen on lo0 port 25
       accept from any for domain <domains> virtual <virtuals> \
         deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
+      accept from source <mynetworks> for any relay

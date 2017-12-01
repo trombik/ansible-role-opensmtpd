@@ -15,6 +15,13 @@ virtual_user = {
 }
 
 tables = [
+  { path: "/etc/mail/secrets",
+    name: "secrets",
+    type: "file",
+    mode: 640,
+    owner: "root",
+    group: "_smtpd",
+    matches: [/^#{Regexp.escape("john@example.org $2b$08$")}.*$/] },
   { path: "/etc/mail/domains",
     name: "domains",
     type: "file",
@@ -22,6 +29,13 @@ tables = [
     owner: default_user,
     group: default_group,
     matches: [/^example\.org$/, /^example\.net$/] },
+  { path: "/etc/mail/mynetworks",
+    name: "mynetworks",
+    type: "db",
+    mode: 644,
+    owner: default_user,
+    group: default_group,
+    matches: [/^#{Regexp.escape("192.168.21.0/24")}$/] },
   { path: "/etc/mail/virtuals",
     name: "virtuals",
     type: "db",
