@@ -42,7 +42,7 @@ end
 
 desc "import required roles"
 task :prepare_roles do
-  sh "echo NOOP ansible-galaxy install -r requirements.yml -p roles"
+  sh "ansible-galaxy install -r requirements.yml -p roles"
 end
 
 desc "clean up required roles"
