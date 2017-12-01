@@ -6,8 +6,8 @@ galaxy_info:
   company: N/A
   min_ansible_version: 2.0
   platforms:
-  - name: FreeBSD
-    versions:
+# - name: FreeBSD
+#   versions:
 #   - 10.3
   - name: OpenBSD
     versions:
