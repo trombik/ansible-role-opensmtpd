@@ -8,6 +8,21 @@
       home: /var/vmail
       comment: Virtual Mail User
     opensmtpd_tables:
+      - name: aliases
+        path: "{{ opensmtpd_conf_dir }}/aliases"
+        type: file
+        format: aliases
+        mode: "644"
+        no_log: no
+        values:
+          - "MAILER-DAEMON: postmaster"
+          - "postmaster: root"
+          - "daemon: root"
+          - "ftp-bugs: root"
+          - "operator: root"
+          - "www:    root"
+          - "foo: error:500 no such user"
+          - "bar: | cat - >/dev/null"
       - name: secrets
         path: "{{ opensmtpd_conf_dir }}/secrets"
         type: file
@@ -53,7 +68,6 @@
 
     opensmtpd_flags: -v
     opensmtpd_config: |
-      table aliases file:{{ opensmtpd_aliases_file }}
       {% for list in opensmtpd_tables %}
       table {{ list.name }} {{ list.type }}:{{ list.path }}{% if list['type'] == 'db' %}.db{% endif %}
 
