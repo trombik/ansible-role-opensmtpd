@@ -104,7 +104,6 @@ when "freebsd"
   end
 end
 
-
 describe file(config_dir) do
   it { should exist }
   it { should be_directory }
