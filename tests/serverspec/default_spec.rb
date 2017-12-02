@@ -3,7 +3,7 @@ require "serverspec"
 
 service = "smtpd"
 config_dir = "/etc/mail"
-ports   = [25]
+ports = [25]
 default_user = "root"
 default_group = "wheel"
 user = "_smtpd"
@@ -19,17 +19,17 @@ when "freebsd"
   config_dir = "/usr/local/etc/mail"
 end
 
-config  = "#{config_dir}/smtpd.conf"
+config = "#{config_dir}/smtpd.conf"
 
 tables = [
-  { path: "#{ config_dir }/secrets",
+  { path: "#{config_dir}/secrets",
     name: "secrets",
     type: "file",
     mode: 640,
     owner: "root",
     group: "_smtpd",
     matches: [/^#{Regexp.escape("john@example.org $2b$08$")}.*$/] },
-  { path: "#{ config_dir }/aliases",
+  { path: "#{config_dir}/aliases",
     name: "aliases",
     type: "file",
     mode: 644,
@@ -40,21 +40,21 @@ tables = [
       /^foo: error:500 no such user$/,
       /^#{Regexp.escape("bar: | cat - >/dev/null")}$/
     ] },
-  { path: "#{ config_dir }/domains",
+  { path: "#{config_dir}/domains",
     name: "domains",
     type: "file",
     mode: 644,
     owner: default_user,
     group: default_group,
     matches: [/^example\.org$/, /^example\.net$/] },
-  { path: "#{ config_dir }/mynetworks",
+  { path: "#{config_dir}/mynetworks",
     name: "mynetworks",
     type: "db",
     mode: 644,
     owner: default_user,
     group: default_group,
     matches: [/^#{Regexp.escape("192.168.21.0/24")}$/] },
-  { path: "#{ config_dir }/virtuals",
+  { path: "#{config_dir}/virtuals",
     name: "virtuals",
     type: "db",
     mode: 444,
@@ -88,7 +88,7 @@ when "freebsd"
     it { should be_owned_by default_user }
     it { should be_grouped_into default_group }
     it { should be_mode 644 }
-    ["sendmail_submit", "sendmail_outbound", "sendmail_msp_queue"].each do |s|
+    %w[sendmail_submit sendmail_outbound sendmail_msp_queue].each do |s|
       its(:content) { should match(/^#{s}_enable='NO'$/) }
     end
   end
