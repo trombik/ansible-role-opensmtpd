@@ -72,7 +72,6 @@
       pki a.mx.trombik.org certificate "{{ x509_certificate_dir }}/a.mx.trombik.org.crt"
       pki a.mx.trombik.org key "{{ x509_certificate_dir }}/a.mx.trombik.org.key"
 
-      table aliases file:{{ opensmtpd_aliases_file }}
       {% for list in opensmtpd_tables %}
       table {{ list.name }} {{ list.type }}:{{ list.path }}{% if list['type'] == 'db' %}.db{% endif %}
 

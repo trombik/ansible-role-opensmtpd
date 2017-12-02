@@ -22,6 +22,17 @@ tables = [
     owner: "root",
     group: "_smtpd",
     matches: [/^#{Regexp.escape("john@example.org $2b$08$")}.*$/] },
+  { path: "/etc/mail/aliases",
+    name: "aliases",
+    type: "file",
+    mode: 644,
+    owner: "root",
+    group: "wheel",
+    matches: [
+      /^MAILER-DAEMON: postmaster$/,
+      /^foo: error:500 no such user$/,
+      /^#{Regexp.escape("bar: | cat - >/dev/null")}$/
+    ] },
   { path: "/etc/mail/domains",
     name: "domains",
     type: "file",

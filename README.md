@@ -15,7 +15,6 @@ None
 | `opensmtpd_service` | service name of `smtpd(8)` | `{{ __opensmtpd_service }}` |
 | `opensmtpd_conf_dir` | path to configuration directory | `{{ __opensmtpd_conf_dir }}` |
 | `opensmtpd_conf_file` | path to `smtpd.conf(5)` | `{{ __opensmtpd_conf_dir }}/smtpd.conf` |
-| `opensmtpd_aliases_file` | path to `aliases(5)` | `{{ __opensmtpd_conf_dir }}/aliases` |
 | `opensmtpd_flags` | optional flags for `smtpd(8)` | `""` |
 | `opensmtpd_package_name` | package name of OpenSMTPD | `{{ __opensmtpd_package_name }}` |
 | `opensmtpd_extra_packages` | list of extra packages to install | `[]` |
@@ -81,6 +80,21 @@ None
       home: /var/vmail
       comment: Virtual Mail User
     opensmtpd_tables:
+      - name: aliases
+        path: "{{ opensmtpd_conf_dir }}/aliases"
+        type: file
+        format: aliases
+        mode: "644"
+        no_log: no
+        values:
+          - "MAILER-DAEMON: postmaster"
+          - "postmaster: root"
+          - "daemon: root"
+          - "ftp-bugs: root"
+          - "operator: root"
+          - "www:    root"
+          - "foo: error:500 no such user"
+          - "bar: | cat - >/dev/null"
       - name: secrets
         path: "{{ opensmtpd_conf_dir }}/secrets"
         type: file
@@ -117,7 +131,7 @@ None
           - postmaster@example.net john@example.net
           - john@example.net {{ opensmtpd_virtual_user.name }}
       - name: mynetworks
-        path: /etc/mail/mynetworks
+        path: "{{ opensmtpd_conf_dir }}/mynetworks"
         type: db
         format: set
         no_log: no
@@ -126,7 +140,6 @@ None
 
     opensmtpd_flags: -v
     opensmtpd_config: |
-      table aliases file:{{ opensmtpd_aliases_file }}
       {% for list in opensmtpd_tables %}
       table {{ list.name }} {{ list.type }}:{{ list.path }}{% if list['type'] == 'db' %}.db{% endif %}
 
