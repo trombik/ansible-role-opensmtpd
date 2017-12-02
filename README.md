@@ -21,6 +21,7 @@ None
 | `opensmtpd_config` | content of `smtpd.conf(5)` | `""` |
 | `opensmtpd_makemap_bin` | path to `makemap(8)` | `{{ __opensmtpd_makemap_bin }}` |
 | `opensmtpd_virtual_user` | Virtual user for delivering mails to virtual users. See below. | `None` |
+| `opensmtpd_extra_groups` | Additional list of groups to add `smtpd(8)` user to | `[]` |
 | `opensmtpd_tables` | list of tables. See below.  | `[]` |
 
 ## `opensmtpd_virtual_user`
@@ -87,6 +88,8 @@ None
   roles:
     - ansible-role-opensmtpd
   vars:
+    opensmtpd_extra_groups:
+      - nobody
     opensmtpd_virtual_user:
       name: vmail
       group: vmail
