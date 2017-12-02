@@ -4,3 +4,4 @@ __opensmtpd_group: _smtpd
 __opensmtpd_service: smtpd
 __opensmtpd_conf_dir: /etc/mail
 __opensmtpd_package_name:
+__opensmtpd_makemap_bin: /usr/sbin/makemap

@@ -7,6 +7,7 @@ opensmtpd_flags: ""
 opensmtpd_package_name: "{{ __opensmtpd_package_name }}"
 opensmtpd_extra_packages: []
 opensmtpd_config: ""
+opensmtpd_makemap_bin: "{{ __opensmtpd_makemap_bin }}"
 opensmtpd_virtual_user: None
 
 opensmtpd_tables: []
