@@ -13,6 +13,7 @@ virtual_user = {
   group: "vmail",
   home: "/var/vmail"
 }
+extra_group = ["nobody"]
 
 case os[:family]
 when "freebsd"
@@ -101,6 +102,9 @@ end
 describe user(user) do
   it { should exist }
   it { should belong_to_primary_group group }
+  extra_group.each do |g|
+    it { should belong_to_group g }
+  end
 end
 
 describe group(virtual_user[:group]) do
