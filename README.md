@@ -19,6 +19,7 @@ None
 | `opensmtpd_package_name` | package name of OpenSMTPD | `{{ __opensmtpd_package_name }}` |
 | `opensmtpd_extra_packages` | list of extra packages to install | `[]` |
 | `opensmtpd_config` | content of `smtpd.conf(5)` | `""` |
+| `opensmtpd_makemap_bin` | path to `makemap(8)` | `{{ __opensmtpd_makemap_bin }}` |
 | `opensmtpd_virtual_user` | Virtual user for delivering mails to virtual users. See below. | `None` |
 | `opensmtpd_tables` | list of tables. See below.  | `[]` |
 
@@ -53,6 +54,17 @@ This list variable defines list of dict of `table(5)`.
 | `values` | List of content of the file. See `table(5)`. | yes |
 | `no_log` | When `yes`, enable `no_log` in the template task. Setting this to `no` causes everything in the variable logged, including credentials. The default is `yes` | no |
 
+## FreeBSD
+
+| Variable | Default |
+|----------|---------|
+| `__opensmtpd_user` | `_smtpd` |
+| `__opensmtpd_group` | `_smtpd` |
+| `__opensmtpd_service` | `smtpd` |
+| `__opensmtpd_conf_dir` | `/usr/local/etc/mail` |
+| `__opensmtpd_package_name` | `mail/opensmtpd` |
+| `__opensmtpd_makemap_bin` | `/usr/local/libexec/opensmtpd/makemap` |
+
 ## OpenBSD
 
 | Variable | Default |
@@ -62,6 +74,7 @@ This list variable defines list of dict of `table(5)`.
 | `__opensmtpd_service` | `smtpd` |
 | `__opensmtpd_conf_dir` | `/etc/mail` |
 | `__opensmtpd_package_name` | `""` |
+| `__opensmtpd_makemap_bin` | `/usr/sbin/makemap` |
 
 # Dependencies
 

@@ -1,0 +1,48 @@
+---
+
+- name: Create rc.conf.d/smtpd
+  template:
+    src: FreeBSD.rcd.j2
+    dest: /etc/rc.conf.d/smtpd
+  notify:
+    - Restart opensmtpd
+
+- name: Stop default sendmail and its family
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items:
+    - sendmail
+    - sendmail_submit
+    - sendmail_outbound
+    - sendmail_msp_queue
+
+- name: Disable default sendmail
+  service:
+    name: sendmail
+    enabled: no
+
+- name: Disable default sendmail family
+  # XXX these services do not have rc.d script, and the service module does
+  # not handled them gracefully.
+  lineinfile:
+    path: /etc/rc.conf
+    line: "{{ item }}_enable='NO'"
+  with_items:
+    - sendmail_submit
+    - sendmail_outbound
+    - sendmail_msp_queue
+
+- name: Install opensmtpd
+  pkgng:
+    name: "{{ opensmtpd_package_name }}"
+
+- name: Enable opensmtpd
+  service:
+    name: "{{ opensmtpd_service }}"
+    enabled: yes
+
+- name: Install opensmtpd_extra_packages
+  pkgng:
+    name: "{{ item }}"
+  with_items: "{{ opensmtpd_extra_packages }}"

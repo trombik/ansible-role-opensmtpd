@@ -3,26 +3,33 @@ require "serverspec"
 
 service = "smtpd"
 config_dir = "/etc/mail"
-config  = "#{config_dir}/smtpd.conf"
-aliases = "/etc/mail/aliases"
-ports   = [25]
+ports = [25]
 default_user = "root"
 default_group = "wheel"
+user = "_smtpd"
+group = "_smtpd"
 virtual_user = {
   name: "vmail",
   group: "vmail",
   home: "/var/vmail"
 }
 
+case os[:family]
+when "freebsd"
+  config_dir = "/usr/local/etc/mail"
+end
+
+config = "#{config_dir}/smtpd.conf"
+
 tables = [
-  { path: "/etc/mail/secrets",
+  { path: "#{config_dir}/secrets",
     name: "secrets",
     type: "file",
     mode: 640,
     owner: "root",
     group: "_smtpd",
     matches: [/^#{Regexp.escape("john@example.org $2b$08$")}.*$/] },
-  { path: "/etc/mail/aliases",
+  { path: "#{config_dir}/aliases",
     name: "aliases",
     type: "file",
     mode: 644,
@@ -33,21 +40,21 @@ tables = [
       /^foo: error:500 no such user$/,
       /^#{Regexp.escape("bar: | cat - >/dev/null")}$/
     ] },
-  { path: "/etc/mail/domains",
+  { path: "#{config_dir}/domains",
     name: "domains",
     type: "file",
     mode: 644,
     owner: default_user,
     group: default_group,
     matches: [/^example\.org$/, /^example\.net$/] },
-  { path: "/etc/mail/mynetworks",
+  { path: "#{config_dir}/mynetworks",
     name: "mynetworks",
     type: "db",
     mode: 644,
     owner: default_user,
     group: default_group,
     matches: [/^#{Regexp.escape("192.168.21.0/24")}$/] },
-  { path: "/etc/mail/virtuals",
+  { path: "#{config_dir}/virtuals",
     name: "virtuals",
     type: "db",
     mode: 444,
@@ -62,6 +69,39 @@ tables = [
       /^#{Regexp.escape("john@example.net #{virtual_user[:name]}")}$/
     ] }
 ]
+
+case os[:family]
+when "freebsd"
+  describe file("/etc/rc.conf.d/smtpd") do
+    it { should exist }
+    it { should be_file }
+    it { should be_owned_by default_user }
+    it { should be_grouped_into default_group }
+    it { should be_mode 644 }
+    its(:content) { should match(/^smtpd_config="#{Regexp.escape(config)}"$/) }
+    its(:content) { should match(/^smtpd_flags="-v"$/) }
+  end
+
+  describe file("/etc/rc.conf") do
+    it { should exist }
+    it { should be_file }
+    it { should be_owned_by default_user }
+    it { should be_grouped_into default_group }
+    it { should be_mode 644 }
+    %w[sendmail_submit sendmail_outbound sendmail_msp_queue].each do |s|
+      its(:content) { should match(/^#{s}_enable='NO'$/) }
+    end
+  end
+end
+
+describe group(group) do
+  it { should exist }
+end
+
+describe user(user) do
+  it { should exist }
+  it { should belong_to_primary_group group }
+end
 
 describe group(virtual_user[:group]) do
   it { should exist }
@@ -119,7 +159,6 @@ describe file(config) do
   it { should be_mode 644 }
   it { should be_owned_by default_user }
   it { should be_grouped_into default_group }
-  its(:content) { should match(/^table aliases file:#{Regexp.escape(aliases)}$/) }
   tables.each do |t|
     path = t[:type] == "db" ? "#{t[:path]}.db" : t[:path]
     its(:content) { should match(/^table #{t[:name]} #{t[:type]}:#{path}$/) }
@@ -130,10 +169,13 @@ describe file(config) do
   # rubocop:enable Style/FormatStringToken
 end
 
-describe command("rcctl get smtpd flags") do
-  its(:exit_status) { should eq 0 }
-  its(:stdout) { should eq "-v\n" }
-  its(:stderr) { should eq "" }
+case os[:family]
+when "openbsd"
+  describe command("rcctl get smtpd flags") do
+    its(:exit_status) { should eq 0 }
+    its(:stdout) { should eq "-v\n" }
+    its(:stderr) { should eq "" }
+  end
 end
 
 describe service(service) do
