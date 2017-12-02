@@ -38,6 +38,12 @@
 
 - include: "install-{{ ansible_os_family }}.yml"
 
+- name: Add opensmtpd user to opensmtpd_extra_groups
+  user:
+    name: "{{ opensmtpd_user }}"
+    append: yes
+    groups: "{{ opensmtpd_extra_groups }}"
+
 - name: Create opensmtpd_conf_dir
   file:
     dest: "{{ opensmtpd_conf_dir }}"
