@@ -1,0 +1,15 @@
+---
+
+- name: Install opensmtpd
+  apt:
+    name: "{{ opensmtpd_package_name }}"
+
+- name: Enable opensmtpd
+  service:
+    name: "{{ opensmtpd_service }}"
+    enabled: yes
+
+- name: Install opensmtpd_extra_packages
+  apt:
+    name: "{{ item }}"
+  with_items: "{{ opensmtpd_extra_packages }}"

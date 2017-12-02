@@ -33,17 +33,6 @@ platforms:
       extra_vars:
         ansible_python_interpreter: '/usr/local/bin/python'
 
-  - name: openbsd-6.0-amd64
-    driver:
-      box: trombik/ansible-openbsd-6.0-amd64
-      box_check_update: false
-    driver_config:
-      ssh:
-        shell: '/bin/sh'
-    provisioner:
-      extra_vars:
-        ansible_python_interpreter: '/usr/local/bin/python'
-
   - name: openbsd-6.1-amd64
     driver:
       box: trombik/ansible-openbsd-6.1-amd64
@@ -65,6 +54,16 @@ platforms:
     provisioner:
       extra_vars:
         ansible_python_interpreter: '/usr/local/bin/python'
+
+  - name: ubuntu-16.04-amd64
+    driver:
+      box: trombik/ansible-ubuntu-16.04-amd64
+      box_check_update: false
+#
+#  - name: centos-7.3-x86_64
+#    driver:
+#      box: trombik/ansible-centos-7.3-x86_64
+#      box_check_update: false
 
 suites:
   - name: default

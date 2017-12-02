@@ -2,8 +2,7 @@
   roles:
     - ansible-role-opensmtpd
   vars:
-    opensmtpd_extra_groups:
-      - nobody
+    opensmtpd_extra_groups: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}[ 'nobody' ]{% else %}[ 'games' ]{% endif %}"
     opensmtpd_virtual_user:
       name: vmail
       group: vmail
@@ -39,7 +38,7 @@
         path: "{{ opensmtpd_conf_dir }}/domains"
         type: file
         owner: root
-        group: wheel
+        group: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}wheel{% else %}root{% endif %}"
         mode: "0644"
         no_log: no
         values:
@@ -74,7 +73,7 @@
       table {{ list.name }} {{ list.type }}:{{ list.path }}{% if list['type'] == 'db' %}.db{% endif %}
 
       {% endfor %}
-      listen on lo0 port 25
+      listen on {% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}lo0{% else %}lo{% endif %} port 25
       accept from any for domain <domains> virtual <virtuals> \
         deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
       accept from source <mynetworks> for any relay
