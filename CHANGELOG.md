@@ -1,3 +1,7 @@
+## Release 1.2.0
+
+* 4045034 [feature] support `opensmtpd_extra_groups` (#20)
+
 ## Release 1.1.0
 
 * b8cd4b7 [feature] support FreeBSD (#17)
