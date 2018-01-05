@@ -24,15 +24,15 @@ when "ubuntu"
   group = "opensmtpd"
   extra_group = ["games"]
   service = "opensmtpd"
-  packages = [ "opensmtpd", "opensmtpd-extras" ]
+  packages = ["opensmtpd", "opensmtpd-extras"]
   passwd_postfix = ":12345:12345:::"
 when "freebsd"
   config_dir = "/usr/local/etc/mail"
   default_group = "wheel"
-  packages = [ "opensmtpd", "opensmtpd-extras-table-passwd" ]
+  packages = ["opensmtpd", "opensmtpd-extras-table-passwd"]
 when "openbsd"
   default_group = "wheel"
-  packages = [ "opensmtpd-extras" ]
+  packages = ["opensmtpd-extras"]
 end
 
 config = "#{config_dir}/smtpd.conf"
