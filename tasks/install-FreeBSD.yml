@@ -4,6 +4,7 @@
   template:
     src: FreeBSD.rcd.j2
     dest: /etc/rc.conf.d/smtpd
+    validate: sh -n %s
   notify:
     - Restart opensmtpd
 
@@ -45,4 +46,5 @@
 - name: Install opensmtpd_extra_packages
   pkgng:
     name: "{{ item }}"
+    state: present
   with_items: "{{ opensmtpd_extra_packages }}"

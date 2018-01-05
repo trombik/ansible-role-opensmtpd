@@ -30,7 +30,6 @@
       - "'values' in item"
       - item['name'] | length > 0
       - item['path'] | length > 0
-      - item['type'] == 'file' or item['type'] == 'db'
   no_log: "{{ item['no_log'] | default('yes') }}"
   with_items: "{{ opensmtpd_tables }}"
   when:
