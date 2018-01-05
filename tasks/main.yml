@@ -92,7 +92,7 @@
   # * the mapped database files must be created before smtpd(8) checks
   # smtpd.conf(5)'s syntax
   # * flashing handlers is the last option
-  command: "{{ opensmtpd_makemap_bin }} -d {{ item.dbtype | default('hash') }}{% if \"'format' in item\" %} -t {{ item.format }}{% endif %} {{ item.path }}"
+  command: "{{ opensmtpd_makemap_bin }} -d {{ item.dbtype | default('hash') }}{% if 'format' in item %} -t {{ item.format }}{% endif %} {{ item.path }}"
   with_items: "{{ __register_opensmtpd_tables.results | selectattr('changed') | map(attribute='item') | list }}"
   no_log: "{{ item.no_log | default('yes') }}"
   when:
@@ -110,7 +110,7 @@
 - name: Create database files if not exist
   # XXX makemap.c defines T_PLAIN in enum output_type, but getopt in it does
   # not accept `-t plain`. enclose it with `if`
-  command: "{{ opensmtpd_makemap_bin }} -d {{ item.dbtype | default('hash') }}{% if \"'format' in item\" %} -t {{ item.format }}{% endif %} {{ item.path }}"
+  command: "{{ opensmtpd_makemap_bin }} -d {{ item.dbtype | default('hash') }}{% if 'format' in item %} -t {{ item.format }}{% endif %} {{ item.path }}"
   no_log: "{{ item.no_log | default('yes') }}"
   with_items: "{{ __register_opensmtpd_database_files.results | selectattr('rc', 'equalto', 1) | map(attribute='item') | list }}"
 
@@ -125,3 +125,13 @@
   service:
     name: "{{ opensmtpd_service }}"
     state: started
+
+- name: Notify the daemon when file tables has been updated
+  # XXX this task is here to make sure the command is invoked while the daemon
+  # is running
+  command: "smtpctl update table {{ item.name }}"
+  with_items: "{{ __register_opensmtpd_tables.results | selectattr('changed') | map(attribute='item') | list }}"
+  no_log: "{{ item.no_log | default('yes') }}"
+  when:
+    - "'type' in item"
+    - "item.type == 'file'"
