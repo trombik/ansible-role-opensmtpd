@@ -12,4 +12,5 @@
 - name: Install opensmtpd_extra_packages
   apt:
     name: "{{ item }}"
+    state: present
   with_items: "{{ opensmtpd_extra_packages }}"

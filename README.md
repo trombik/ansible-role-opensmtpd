@@ -46,7 +46,7 @@ This list variable defines list of dict of `table(5)`.
 |-----|-------------|------------|
 | `name` | The name of the table used in `smtpd.conf(5)` | yes |
 | `path` | The path to the file | yes |
-| `type` | Either one of `file` or `db` | yes |
+| `type` | One of supported back-end type, default installation only accepts `file` or `db`. Install [OpenSMTPD-extra](https://github.com/OpenSMTPD/OpenSMTPD-extras) for other types | yes |
 | `owner` | Owner of the file | no |
 | `group` | Group of the file | no |
 | `dbtype` | One of supported formats of the database, the default is `hash`. Ignored unless `type` is `db` | no |
@@ -88,8 +88,14 @@ None
   roles:
     - ansible-role-opensmtpd
   vars:
-    opensmtpd_extra_groups:
-      - nobody
+    test_user: john@example.org
+    # smtpctl encrypt PassWord
+    test_password: "$2b$08$LT/AdE2YSHb19d3hB27.4uXd1/Cj0qQIWc4FdfLlcuqnCUGbRu2Mq"
+    # XXX table_passwd in Ubuntu package throws error when UID or GID field is
+    # empty
+    passwd_postfix: "{% if ansible_os_family == 'Debian' %}:12345:12345:::{% else %}:::::{% endif %}"
+    opensmtpd_extra_packages: "{% if ansible_os_family == 'FreeBSD' %}[ 'opensmtpd-extras-table-passwd' ]{% else %}[ 'opensmtpd-extras' ]{% endif %}"
+    opensmtpd_extra_groups: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}[ 'nobody' ]{% else %}[ 'games' ]{% endif %}"
     opensmtpd_virtual_user:
       name: vmail
       group: vmail
@@ -119,13 +125,24 @@ None
         mode: "0640"
         no_log: yes
         values:
-          # smtpctl encrypt PassWord
-          - john@example.org $2b$08$LT/AdE2YSHb19d3hB27.4uXd1/Cj0qQIWc4FdfLlcuqnCUGbRu2Mq
+          - "{{ test_user }} {{ test_password }}"
+      - name: passwd
+        # XXX Ubuntu package does not allow non-defalt path to smtpd.conf(5)
+        # as such, all files are under opensmtpd_conf_dir. use smtpd_passwd,
+        # instead of consistent file name, `passwd`.
+        path: "{{ opensmtpd_conf_dir }}/smtpd_passwd"
+        type: passwd
+        owner: root
+        group: "{{ opensmtpd_group }}"
+        mode: "0640"
+        no_log: no
+        values:
+          - "{{ test_user }}:{{ test_password }}{{ passwd_postfix }}"
       - name: domains
         path: "{{ opensmtpd_conf_dir }}/domains"
         type: file
         owner: root
-        group: wheel
+        group: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}wheel{% else %}root{% endif %}"
         mode: "0644"
         no_log: no
         values:
@@ -160,7 +177,7 @@ None
       table {{ list.name }} {{ list.type }}:{{ list.path }}{% if list['type'] == 'db' %}.db{% endif %}
 
       {% endfor %}
-      listen on lo0 port 25
+      listen on {% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}lo0{% else %}lo{% endif %} port 25
       accept from any for domain <domains> virtual <virtuals> \
         deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
       accept from source <mynetworks> for any relay

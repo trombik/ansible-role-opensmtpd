@@ -14,6 +14,8 @@ virtual_user = {
   home: "/var/vmail"
 }
 extra_group = ["nobody"]
+packages = []
+passwd_postfix = ":::::"
 
 case os[:family]
 when "ubuntu"
@@ -22,15 +24,18 @@ when "ubuntu"
   group = "opensmtpd"
   extra_group = ["games"]
   service = "opensmtpd"
+  packages = [ "opensmtpd", "opensmtpd-extras" ]
+  passwd_postfix = ":12345:12345:::"
 when "freebsd"
   config_dir = "/usr/local/etc/mail"
   default_group = "wheel"
+  packages = [ "opensmtpd", "opensmtpd-extras-table-passwd" ]
 when "openbsd"
   default_group = "wheel"
+  packages = [ "opensmtpd-extras" ]
 end
 
 config = "#{config_dir}/smtpd.conf"
-
 tables = [
   { path: "#{config_dir}/secrets",
     name: "secrets",
@@ -39,6 +44,13 @@ tables = [
     owner: "root",
     group: group,
     matches: [/^#{Regexp.escape("john@example.org $2b$08$")}.*$/] },
+  { path: "#{config_dir}/smtpd_passwd",
+    name: "passwd",
+    type: "passwd",
+    mode: 640,
+    owner: "root",
+    group: group,
+    matches: [/^#{Regexp.escape("john@example.org:$2b$08$")}.*#{passwd_postfix}$/] },
   { path: "#{config_dir}/aliases",
     name: "aliases",
     type: "file",
@@ -79,6 +91,12 @@ tables = [
       /^#{Regexp.escape("john@example.net #{virtual_user[:name]}")}$/
     ] }
 ]
+
+packages.each do |p|
+  describe package p do
+    it { should be_installed }
+  end
+end
 
 case os[:family]
 when "freebsd"
