@@ -209,9 +209,7 @@ describe file(config) do
              "lo0"
            end
   its(:content) { should match(/^listen on #{int_lo} port 25$/) }
-  # rubocop:disable Style/FormatStringToken
   its(:content) { should match(/^#{Regexp.escape("accept from any for domain <domains> virtual <virtuals> \\")}\n\s+#{Regexp.escape("deliver to maildir \"#{virtual_user[:home]}/%{dest.domain}/%{dest.user}/Maildir\"")}$/) }
-  # rubocop:enable Style/FormatStringToken
 end
 
 case os[:family]

@@ -19,7 +19,6 @@ provisioner:
   additional_copy_path:
     - extra_modules
     - filter_plugins
-  ansible_vault_password_file: <%= File.expand_path(ENV['ANSIBLE_VAULT_PASSWORD_FILE'] || '') %>
 
 platforms:
   - name: freebsd-11.1-amd64
