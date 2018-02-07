@@ -1,3 +1,7 @@
+## Release 1.3.1
+
+* e2ba83e [bugfix] QA (#28)
+
 ## Release 1.3.0
 
 * c858284 [bugfix] Notify the daemon when file databases have been updated (#26)
