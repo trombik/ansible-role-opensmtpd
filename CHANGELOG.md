@@ -1,3 +1,7 @@
+## Release 1.3.2
+
+* cbca001 [bugfix] remove include: (#30)
+
 ## Release 1.3.1
 
 * e2ba83e [bugfix] QA (#28)
