@@ -1,13 +1,11 @@
 require "tempfile"
 require "pathname"
-require "net/http"
-require "tempfile"
+
+ENV["TERM"] = "xterm" # XXX TERM must be defined or pkg_add fails
 
 test_dir = Pathname.new(__FILE__).dirname
 role_dir = Pathname.new(test_dir).parent.parent.parent
 role_name = Pathname.new(role_dir).basename
-required_roles = %w[
-]
 
 def vagrant(cmd)
   Bundler.with_clean_env do
@@ -22,12 +20,14 @@ task test: [:clean, :prepare, :do_test, :ensure_clean] do
 end
 
 desc "clean"
-task clean: [:clean_vagrant, :clean_roles, :clean_role] do
+task clean: [:clean_vagrant, :clean_role] do
 end
 
 desc "destroy vagrant nodes"
 task :clean_vagrant do
-  vagrant "destroy -f"
+  # XXX `vagrant destroy` failes with exit status 1 when there is no VM to
+  # destroy
+  vagrant "destroy -f || true"
 end
 
 desc "rm roles/*"
@@ -43,15 +43,6 @@ end
 desc "import required roles"
 task :prepare_roles do
   sh "ansible-galaxy install -r requirements.yml -p roles"
-end
-
-desc "clean up required roles"
-task :clean_roles do
-  required_roles.each do |r|
-    Dir.chdir("roles") do
-      sh "rm -rf #{r}"
-    end
-  end
 end
 
 desc "prepare role"

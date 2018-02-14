@@ -1,2 +1,2 @@
-- include: server.yml
-- include: client.yml
+- import_playbook: server.yml
+- import_playbook: client.yml

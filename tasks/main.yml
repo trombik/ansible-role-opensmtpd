@@ -35,7 +35,7 @@
   when:
     - opensmtpd_tables | length > 0
 
-- include: "install-{{ ansible_os_family }}.yml"
+- include_tasks: "install-{{ ansible_os_family }}.yml"
 
 - name: Create opensmtpd_conf_dir
   file:
