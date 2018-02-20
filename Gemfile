@@ -6,7 +6,6 @@ gem "kitchen-sync", "~> 2.1.1", git: "https://github.com/trombik/kitchen-sync.gi
 gem "kitchen-vagrant", "~> 0.20.0"
 gem "kitchen-verifier-serverspec", "~> 0.3.0"
 gem "kitchen-verifier-shell", "~> 0.2.0"
-gem "rack", "~> 1.6.4" # rack 2.x requires ruby >= 2.2.2
 gem "rake", "~> 11.1.2"
 gem "rspec", "~> 3.4.0"
 gem "rspec-retry", "~> 0.5.6"
