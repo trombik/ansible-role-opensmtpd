@@ -13,7 +13,7 @@ provisioner:
   ansible_verbosity: 1
   ansible_verbose: true
   ansible_extra_flags: <%= ENV['ANSIBLE_EXTRA_FLAGS'] %>
-  # requirements_path: requirements.yml
+  requirements_path: requirements.yml
   http_proxy: <%= ENV['ANSIBLE_PROXY'] %>
   idempotency_test: true
   additional_copy_path:
@@ -54,17 +54,6 @@ platforms:
       extra_vars:
         ansible_python_interpreter: '/usr/local/bin/python'
 
-  - name: openbsd-snapshot-amd64
-    driver:
-      box: trombik/ansible-openbsd-snapshot-amd64
-      box_check_update: false
-    driver_config:
-      ssh:
-        shell: '/bin/sh'
-    provisioner:
-      extra_vars:
-        ansible_python_interpreter: '/usr/local/bin/python'
-
   - name: ubuntu-16.04-amd64
     driver:
       box: trombik/ansible-ubuntu-16.04-amd64
@@ -83,3 +72,13 @@ suites:
     verifier:
       name: shell
       command: rspec -c -f d -I tests/serverspec tests/serverspec/default_spec.rb
+  - name: x509
+    provisioner:
+      name: ansible_playbook
+      playbook: tests/serverspec/x509.yml
+    verifier:
+      name: shell
+      command: rspec -c -f d -I tests/serverspec tests/serverspec/x509_spec.rb
+    includes:
+      - freebsd-11.1-amd64
+      - openbsd-6.2-amd64

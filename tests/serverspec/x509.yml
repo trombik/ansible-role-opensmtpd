@@ -1,0 +1,208 @@
+- hosts: localhost
+  roles:
+    - ansible-role-opensmtpd
+  vars:
+    test_user: john@example.org
+    # smtpctl encrypt PassWord
+    test_password: "$2b$08$LT/AdE2YSHb19d3hB27.4uXd1/Cj0qQIWc4FdfLlcuqnCUGbRu2Mq"
+    # XXX table_passwd in Ubuntu package throws error when UID or GID field is
+    # empty
+    passwd_postfix: "{% if ansible_os_family == 'Debian' %}:12345:12345:::{% else %}:::::{% endif %}"
+    opensmtpd_extra_packages: "{% if ansible_os_family == 'FreeBSD' %}[ 'opensmtpd-extras-table-passwd' ]{% else %}[ 'opensmtpd-extras' ]{% endif %}"
+    opensmtpd_extra_groups: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}[ 'nobody' ]{% else %}[ 'games' ]{% endif %}"
+    opensmtpd_virtual_user:
+      name: vmail
+      group: vmail
+      home: /var/vmail
+      comment: Virtual Mail User
+    opensmtpd_tables:
+      - name: aliases
+        path: "{{ opensmtpd_conf_dir }}/aliases"
+        type: file
+        format: aliases
+        mode: "644"
+        no_log: no
+        values:
+          - "MAILER-DAEMON: postmaster"
+          - "postmaster: root"
+          - "daemon: root"
+          - "ftp-bugs: root"
+          - "operator: root"
+          - "www:    root"
+          - "foo: error:500 no such user"
+          - "bar: | cat - >/dev/null"
+      - name: secrets
+        path: "{{ opensmtpd_conf_dir }}/secrets"
+        type: file
+        owner: root
+        group: "{{ opensmtpd_group }}"
+        mode: "0640"
+        no_log: yes
+        values:
+          - "{{ test_user }} {{ test_password }}"
+      - name: passwd
+        # XXX Ubuntu package does not allow non-defalt path to smtpd.conf(5)
+        # as such, all files are under opensmtpd_conf_dir. use smtpd_passwd,
+        # instead of consistent file name, `passwd`.
+        path: "{{ opensmtpd_conf_dir }}/smtpd_passwd"
+        type: passwd
+        owner: root
+        group: "{{ opensmtpd_group }}"
+        mode: "0640"
+        no_log: no
+        values:
+          - "{{ test_user }}:{{ test_password }}{{ passwd_postfix }}"
+      - name: domains
+        path: "{{ opensmtpd_conf_dir }}/domains"
+        type: file
+        owner: root
+        group: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}wheel{% else %}root{% endif %}"
+        mode: "0644"
+        no_log: no
+        values:
+          - example.org
+          - example.net
+      - name: virtuals
+        path: "{{ opensmtpd_conf_dir }}/virtuals"
+        type: db
+        dbtype: hash
+        format: aliases
+        owner: root
+        group: vmail
+        mode: "0444"
+        values:
+          - abuse@example.org john@example.org
+          - postmaster@example.org john@example.org
+          - john@example.org {{ opensmtpd_virtual_user.name }}
+          - abuse@example.net john@example.net
+          - postmaster@example.net john@example.net
+          - john@example.net {{ opensmtpd_virtual_user.name }}
+      - name: mynetworks
+        path: "{{ opensmtpd_conf_dir }}/mynetworks"
+        type: db
+        format: set
+        no_log: no
+        values:
+          - 192.168.21.0/24
+
+    opensmtpd_flags: -v
+
+    # XXX do NOT set this to `yes` in production environment. otherwise,
+    # secret key is logged.
+    x509_certificate_debug_log: yes
+    opensmtpd_include_x509_certificate: yes
+
+    # XXX x509_certificate_dir, which is defined in x509-certificate
+    # role, cannot be used here due to a bug in ansible. version 2.5 allegedly
+    # fixes the bug.
+    # https://github.com/ansible/ansible/issues/21890
+    # https://github.com/ansible/ansible/issues/32503#issuecomment-366806353
+    ssl_directory: "{{ opensmtpd_conf_dir }}/ssl"
+    public_key_file: "{{ ssl_directory }}/a.mx.trombik.org.crt"
+    secret_key_file: "{{ ssl_directory }}/a.mx.trombik.org.key"
+    opensmtpd_config: |
+      pki a.mx.trombik.org certificate "{{ public_key_file }}"
+      pki a.mx.trombik.org key "{{ secret_key_file }}"
+      {% for list in opensmtpd_tables %}
+      table {{ list.name }} {{ list.type }}:{{ list.path }}{% if list['type'] == 'db' %}.db{% endif %}
+
+      {% endfor %}
+      listen on {% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}lo0{% else %}lo{% endif %} port 25
+      listen on {% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}lo0{% else %}lo{% endif %} port 587 smtps pki a.mx.trombik.org auth <secrets> hostname \
+        a.mx.trombik.org received-auth
+      accept from any for domain <domains> virtual <virtuals> \
+        deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
+      accept from source <mynetworks> for any relay
+
+    x509_certificate:
+      - name: a.mx.trombik.org
+        state: present
+        secret:
+          path: "{{ secret_key_file }}"
+          key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            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
+            -----END RSA PRIVATE KEY-----
+        public:
+          path: "{{ public_key_file }}"
+          key: |
+            -----BEGIN CERTIFICATE-----
+            MIIFjTCCA3WgAwIBAgIJAOWEMp5KrvqIMA0GCSqGSIb3DQEBCwUAMF0xCzAJBgNV
+            BAYTAlRIMRAwDgYDVQQIDAdCYW5na29rMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRn
+            aXRzIFB0eSBMdGQxGTAXBgNVBAMMEGEubXgudHJvbWJpay5vcmcwHhcNMTcxMjAx
+            MDM1NzA5WhcNMTgxMjAxMDM1NzA5WjBdMQswCQYDVQQGEwJUSDEQMA4GA1UECAwH
+            QmFuZ2tvazEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMRkwFwYD
+            VQQDDBBhLm14LnRyb21iaWsub3JnMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIIC
+            CgKCAgEAsqn3qdkjpvXn3vWIdPCCwGCQdaPhOxiyR0lVd3HfZOZpUM9u2Y+alXZx
+            exaOeMVIc8Ucazz49e1cgAYW+j4Y7roortcWpGJxUqY0LL3i4rBXJMsIjMDQ8gC9
+            ymC4ktPelzxWX1evs1j35ZJXynYTVYztLkSLnJuVjqUqjEj/EhjqQFqgRKlhKtED
+            9JeNM2NGTihYe4o2pTNoosNSsDsvy6liBi2Soko3D0XFkqD7hgCBn6NwJuzCvLQr
+            ypftGS7Bb1vsq9mEXSDeGZE1zZ170CtJ5/bKfsj66ecUBkt7X4qiFxos8vwb+k9M
+            WHgTtwipYrXr214aymdEP5t8ze0z6MhFJQU9FYfJ/VqaxV6ug+NH995uKaalY3np
+            X1vPANODi33wVIze0AiAYCu/bimfw4imG5AiTe7yJZLTa7tUcJ+HgHyZ6kV1Z4MM
+            CvqqMRKR//yELwFunJ8smDneKV5KnEB1aiH2RcmhplXIcrBtNIGnoOPH84SNJ/Hx
+            ji3H5meQLYQ0hv5NUXSHDr0bykrHvk5s1fBxG2/CORrMcwTY3dN+1oGDn7o56Wzl
+            nQ5VGYHWhVyBbfx2utSFeyMgDFrO/NKQBo8jS1UrUW5smYWcCV3LPo+dw3SShIEc
+            Y/kmbiljQ9+989oLQMvWbYunPzOUrMJUL6XB6We+nuEWnWRDCncCAwEAAaNQME4w
+            HQYDVR0OBBYEFBdZboL9VDGD0csUCItPSFX+DSQzMB8GA1UdIwQYMBaAFBdZboL9
+            VDGD0csUCItPSFX+DSQzMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggIB
+            AGiG1DxpTue9Ji9VnkDmrf1uMWi+Xv+adGBjETR3ojR6H8VaMhPZUrGAcTeB3C8h
+            C6mS0uTm6gAthPP0b25GgYRuZn2TSsWaURH6fXJJISrvZVNfY7CrN7eyK19BYSf+
+            31KREZOftm/0q8E+dpmUxKXSgvn4NmXG5TD7gOU9d2v9n9RtyNVrXyOWVWMcP73u
+            StVHHONGwQcm5E7oyQsVcmqKziy7KZxMQwCQ13qzfwlALKDJN19uA/cBBySov05y
+            NxNHKnhXnzxI57kmm+J7qy7D+XFzEsZZmZVS5J9mOOos19EHXx/qepRtPdxtJgFO
+            HJV+4tR7gtMCTC84ZkvRC8mUKCcbkzVniutKzdKSZ0uUeDHpAHp/Sv3+5qaevZ9D
+            2CcbxfqtSfEXr6VHBnBacLBF25P/d3gPN0TqXpR9fhhL1Q8LPW2VrEH9zfLDUDRA
+            argrFehyERw1WvSIhnz33kicpGC11viN6ITdAChNALttnBYOOPWaBSJL0HCw4HfN
+            DuUckexsq3zK5oNCCc3bua7tJCB/Jv0lgMZt7sRR7t2UY7Dy/EZH5Zfk9FxUKY/C
+            98XdGs+SkGrSHyXaHBmcUfFtUW7JfYEcAFrIWLV6E7e1BBjExn53Z97xZgwOvq1x
+            m0f30I/wnrEVBZwTF/pl5dDLq3a3Pm0kEIcZkzwXve4+
+            -----END CERTIFICATE-----
