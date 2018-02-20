@@ -10,5 +10,5 @@ opensmtpd_config: ""
 opensmtpd_makemap_bin: "{{ __opensmtpd_makemap_bin }}"
 opensmtpd_virtual_user: None
 opensmtpd_extra_groups: []
-
 opensmtpd_tables: []
+opensmtpd_include_x509_certificate: no

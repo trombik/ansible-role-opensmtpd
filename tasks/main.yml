@@ -37,6 +37,11 @@
 
 - include_tasks: "install-{{ ansible_os_family }}.yml"
 
+- include_role:
+    name: trombik.x509-certificate
+  when:
+    - opensmtpd_include_x509_certificate
+
 - name: Create opensmtpd_conf_dir
   file:
     path: "{{ opensmtpd_conf_dir }}"

@@ -4,7 +4,8 @@ Configure `smtpd(8)`, aka [OpenSMTPD](https://www.opensmtpd.org/).
 
 # Requirements
 
-None
+When `opensmtpd_include_x509_certificate` is `yes`, `trombik.x509-certificate`
+must have been available, usually via `requirements.yml`.
 
 # Role Variables
 
@@ -23,6 +24,7 @@ None
 | `opensmtpd_virtual_user` | Virtual user for delivering mails to virtual users. See below. | `None` |
 | `opensmtpd_extra_groups` | Additional list of groups to add `smtpd(8)` user to | `[]` |
 | `opensmtpd_tables` | list of tables. See below.  | `[]` |
+| `opensmtpd_include_x509_certificate` | Include [`trombik.x509-certificate`](https://github.com/trombik/ansible-role-x509-certificate) role during the play | `no` |
 
 ## `opensmtpd_virtual_user`
 
@@ -54,6 +56,13 @@ This list variable defines list of dict of `table(5)`.
 | `mode` | String of file mode of the file. Note that you should almost always quote it. | no |
 | `values` | List of content of the file. See `table(5)`. | yes |
 | `no_log` | When `yes`, enable `no_log` in the template task. Setting this to `no` causes everything in the variable logged, including credentials. The default is `yes` | no |
+
+## `opensmtpd_include_x509_certificate`
+
+This `include_role`
+[`trombik.x509-certificate`](https://github.com/trombik/ansible-role-x509-certificate)
+role during the play. See an example in
+[`tests/serverspec/x509.yml`](tests/serverspec/x509.yml).
 
 ## FreeBSD
 
