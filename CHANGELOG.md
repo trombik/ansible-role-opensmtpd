@@ -1,3 +1,7 @@
+## Release 1.4.0
+
+* e577eb1 [feature] Support x509-certificate (#32)
+
 ## Release 1.3.2
 
 * cbca001 [bugfix] remove include: (#30)
