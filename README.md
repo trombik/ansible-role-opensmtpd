@@ -21,7 +21,7 @@ must have been available, usually via `requirements.yml`.
 | `opensmtpd_extra_packages` | list of extra packages to install | `[]` |
 | `opensmtpd_config` | content of `smtpd.conf(5)` | `""` |
 | `opensmtpd_makemap_bin` | path to `makemap(8)` | `{{ __opensmtpd_makemap_bin }}` |
-| `opensmtpd_virtual_user` | Virtual user for delivering mails to virtual users. See below. | `None` |
+| `opensmtpd_virtual_user` | Virtual user for delivering mails to virtual users. See below. | `{}` |
 | `opensmtpd_extra_groups` | Additional list of groups to add `smtpd(8)` user to | `[]` |
 | `opensmtpd_tables` | list of tables. See below.  | `[]` |
 | `opensmtpd_include_x509_certificate` | Include [`trombik.x509-certificate`](https://github.com/trombik/ansible-role-x509-certificate) role during the play | `no` |
@@ -29,7 +29,7 @@ must have been available, usually via `requirements.yml`.
 ## `opensmtpd_virtual_user`
 
 This dict variable defines a virtual user to create. Its keys are explained
-below. When defined, the user and its home directory are created.
+below. When non-empty dict, the user and its home directory are created.
 
 | Key | Description | Mandatory? |
 |-----|-------------|------------|
