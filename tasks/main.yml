@@ -19,7 +19,7 @@
       - "'home' in opensmtpd_virtual_user"
       - opensmtpd_virtual_user.home | length > 0
   when:
-    - opensmtpd_virtual_user is defined
+    - opensmtpd_virtual_user
 
 - name: Assert items in opensmtpd_tables have mandatory keys
   assert:
@@ -35,7 +35,8 @@
   when:
     - opensmtpd_tables | length > 0
 
-- include_tasks: "install-{{ ansible_os_family }}.yml"
+- name: Install opensmtpd_package_name
+  include_tasks: "install-{{ ansible_os_family }}.yml"
 
 - include_role:
     name: trombik.x509-certificate
@@ -65,7 +66,7 @@
     name: "{{ opensmtpd_virtual_user.group }}"
     state: present
   when:
-    - opensmtpd_virtual_user is defined
+    - opensmtpd_virtual_user
 
 - name: Create opensmtpd_virtual_user
   user:
@@ -79,7 +80,7 @@
     shell: /sbin/nologin
     uid: "{{ opensmtpd_virtual_user.uid | default(omit) }}"
   when:
-    - opensmtpd_virtual_user is defined
+    - opensmtpd_virtual_user
 
 - name: Create opensmtpd_tables
   template:

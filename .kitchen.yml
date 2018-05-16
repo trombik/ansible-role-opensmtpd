@@ -82,3 +82,12 @@ suites:
     includes:
       - freebsd-11.1-amd64
       - openbsd-6.2-amd64
+  - name: without_virtual_user
+    provisioner:
+      name: ansible_playbook
+      playbook: tests/serverspec/without_virtual_user.yml
+    verifier:
+      name: shell
+      command: rspec -c -f d -I tests/serverspec tests/serverspec/without_virtual_user_spec.rb
+    includes:
+      - freebsd-11.1-amd64

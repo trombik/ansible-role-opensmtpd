@@ -1,0 +1,23 @@
+- hosts: localhost
+  roles:
+    - ansible-role-opensmtpd
+  vars:
+    # a test case when opensmtpd_virtual_user is an empty dict
+    # https://github.com/trombik/ansible-role-opensmtpd/pull/35
+    opensmtpd_tables:
+      - name: domains
+        path: "{{ opensmtpd_conf_dir }}/domains"
+        type: file
+        owner: root
+        group: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}wheel{% else %}root{% endif %}"
+        mode: "0644"
+        no_log: no
+        values:
+          - example.org
+    opensmtpd_config: |
+      {% for list in opensmtpd_tables %}
+      table {{ list.name }} {{ list.type }}:{{ list.path }}{% if list['type'] == 'db' %}.db{% endif %}
+
+      {% endfor %}
+      listen on {% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}lo0{% else %}lo{% endif %} port 25
+      accept from any for domain <domains> deliver to mbox
