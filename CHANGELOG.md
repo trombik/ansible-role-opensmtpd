@@ -1,3 +1,7 @@
+## Release 1.4.1
+
+* e0d24dd [bugfix] opensmtpd_virtual_user defaults to an empty dict, instead of `None` (#36)
+
 ## Release 1.4.0
 
 * e577eb1 [feature] Support x509-certificate (#32)
