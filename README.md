@@ -64,6 +64,17 @@ This `include_role`
 role during the play. See an example in
 [`tests/serverspec/x509.yml`](tests/serverspec/x509.yml).
 
+## Debian
+
+| Variable | Default |
+|----------|---------|
+| `__opensmtpd_user` | `opensmtpd` |
+| `__opensmtpd_group` | `opensmtpd` |
+| `__opensmtpd_service` | `opensmtpd` |
+| `__opensmtpd_conf_dir` | `/etc` |
+| `__opensmtpd_package_name` | `opensmtpd` |
+| `__opensmtpd_makemap_bin` | `/usr/sbin/makemap` |
+
 ## FreeBSD
 
 | Variable | Default |
