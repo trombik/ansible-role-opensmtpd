@@ -114,7 +114,7 @@ None
     # XXX table_passwd in Ubuntu package throws error when UID or GID field is
     # empty
     passwd_postfix: "{% if ansible_os_family == 'Debian' %}:12345:12345:::{% else %}:::::{% endif %}"
-    opensmtpd_extra_packages: "{% if ansible_os_family == 'FreeBSD' %}[ 'opensmtpd-extras-table-passwd' ]{% else %}[ 'opensmtpd-extras' ]{% endif %}"
+    opensmtpd_extra_packages: "{% if ansible_os_family == 'FreeBSD' %}[ 'opensmtpd-extras-table-passwd' ]{% elif ansible_distribution == 'Ubuntu' and (ansible_distribution_version == '18.04' or ansible_distribution_version == '14.04') %}[]{% else %}[ 'opensmtpd-extras' ]{% endif %}"
     opensmtpd_extra_groups: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}[ 'nobody' ]{% else %}[ 'games' ]{% endif %}"
     opensmtpd_virtual_user:
       name: vmail
@@ -194,7 +194,17 @@ None
     opensmtpd_flags: -v
     opensmtpd_config: |
       {% for list in opensmtpd_tables %}
+      {% if list.type == 'passwd' and ansible_distribution == 'Ubuntu' and (ansible_distribution_version == '18.04' or ansible_distribution_version == '14.04') %}
+      # XXX at the moment (2018/05/20), the version of opensmtpd-extras is
+      # behind opensmtpd, causing "table-api: bad API version".
+      # https://packages.ubuntu.com/bionic/opensmtpd-extras
+      #
+      # skip passwd table until synced version is released
+      #
+      # also, opensmtpd-extras for ubuntu 14.04 was removed
+      {% else %}
       table {{ list.name }} {{ list.type }}:{{ list.path }}{% if list['type'] == 'db' %}.db{% endif %}
+      {% endif %}
 
       {% endfor %}
       listen on {% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}lo0{% else %}lo{% endif %} port 25
