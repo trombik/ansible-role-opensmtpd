@@ -7,6 +7,9 @@ Configure `smtpd(8)`, aka [OpenSMTPD](https://www.opensmtpd.org/).
 When `opensmtpd_include_x509_certificate` is `yes`, `trombik.x509-certificate`
 must have been available, usually via `requirements.yml`.
 
+If `opensmtpd-extras` is installed, `opensmtpd` API version must match
+`opensmtpd-extras`'s one.
+
 # Role Variables
 
 | Variable | Description | Default |
