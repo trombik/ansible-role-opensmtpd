@@ -9,9 +9,11 @@
 
   pre_tasks:
   roles:
-    - trombik.pf
-    - trombik.x509-certificate
-    - ansible-role-opensmtpd
+    - role: trombik.pf
+      when:
+        - ansible_os_family == 'OpenBSD'
+    - role: trombik.x509-certificate
+    - role: ansible-role-opensmtpd
   vars:
     pf_rule: |
       set skip on { lo }
@@ -19,6 +21,7 @@
       # block any out-going SMTP session
       block quick on egress proto tcp from (egress) to any port smtp
       pass
+    smtp_interface: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}em1{% else %}eth1{% endif %}"
     opensmtpd_virtual_user:
       name: vmail
       group: vmail
@@ -38,7 +41,6 @@
         path: "{{ opensmtpd_conf_dir }}/domains"
         type: file
         owner: root
-        group: wheel
         mode: "0644"
         no_log: no
         values:
@@ -76,9 +78,8 @@
       table {{ list.name }} {{ list.type }}:{{ list.path }}{% if list['type'] == 'db' %}.db{% endif %}
 
       {% endfor %}
-      listen on em1 port 25
-      listen on em1 port 587 smtps pki a.mx.trombik.org auth <secrets> hostname \
-        a.mx.trombik.org received-auth
+      listen on {{ smtp_interface }} port 25
+      listen on {{ smtp_interface }} port 587 smtps pki a.mx.trombik.org auth <secrets> hostname a.mx.trombik.org received-auth
 
       accept authenticated for any relay
       accept from any for domain <domains> virtual <virtuals> \
