@@ -95,7 +95,7 @@ tables = [
 packages.each do |p|
   describe package p do
     it do
-      if p == 'opensmtpd-extras' && os[:family] == "ubuntu" && os[:release].to_f == 14.04
+      if p == "opensmtpd-extras" && os[:family] == "ubuntu" && os[:release].to_f == 14.04
         pending "the package is not available"
       end
       should be_installed
