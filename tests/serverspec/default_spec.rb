@@ -94,7 +94,12 @@ tables = [
 
 packages.each do |p|
   describe package p do
-    it { should be_installed }
+    it do
+      if p == 'opensmtpd-extras' && os[:family] == "ubuntu" && os[:release].to_f == 14.04
+        pending "the package is not available"
+      end
+      should be_installed
+    end
   end
 end
 
@@ -201,7 +206,7 @@ describe file(config) do
   tables.each do |t|
     path = t[:type] == "db" ? "#{t[:path]}.db" : t[:path]
     its(:content) do
-      if t[:name] == "passwd" && os[:family] == "ubuntu" && os[:release].to_f == 18.04
+      if t[:name] == "passwd" && os[:family] == "ubuntu" && (os[:release].to_f == 18.04 || os[:release].to_f == 14.04)
         pending "ubuntu 16.04 does not have matched version of opensmtpd-extra"
       end
       should match(/^table #{t[:name]} #{t[:type]}:#{path}$/)
