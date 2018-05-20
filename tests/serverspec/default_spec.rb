@@ -200,7 +200,12 @@ describe file(config) do
   it { should be_grouped_into default_group }
   tables.each do |t|
     path = t[:type] == "db" ? "#{t[:path]}.db" : t[:path]
-    its(:content) { should match(/^table #{t[:name]} #{t[:type]}:#{path}$/) }
+    its(:content) do
+      if t[:name] == "passwd" && os[:family] == "ubuntu" && os[:release].to_f == 18.04
+        pending "ubuntu 16.04 does not have matched version of opensmtpd-extra"
+      end
+      should match(/^table #{t[:name]} #{t[:type]}:#{path}$/)
+    end
   end
   int_lo = case os[:family]
            when "ubuntu"
