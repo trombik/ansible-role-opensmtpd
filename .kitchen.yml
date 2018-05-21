@@ -54,9 +54,19 @@ platforms:
       extra_vars:
         ansible_python_interpreter: '/usr/local/bin/python'
 
+  - name: ubuntu-14.04-amd64
+    driver:
+      box: trombik/ansible-ubuntu-14.04-amd64
+      box_check_update: false
+
   - name: ubuntu-16.04-amd64
     driver:
       box: trombik/ansible-ubuntu-16.04-amd64
+      box_check_update: false
+
+  - name: ubuntu-18.04-amd64
+    driver:
+      box: trombik/ansible-ubuntu-18.04-amd64
       box_check_update: false
 #
 #  - name: centos-7.3-x86_64
