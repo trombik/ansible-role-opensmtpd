@@ -1,3 +1,16 @@
+## Release 1.5.0
+
+* 0a32670 [feature] support ubuntu 14.04 and 18.04 (#42)
+* e28fcd2 [documentation] warn API version mismatch
+* 40dd728 [bugfix] QA
+* a27a8a2 [bugfix] Update README
+* 3d2ab0b [bugfix] remove opensmtpd-extras on ubuntu 14.04
+* 583a252 [bugfix] do not install opensmtpd-extra on ubuntu 18.04 for now
+* 5ceb1a6 [bugfix] make the YAML more portable
+* 105b1dd [bugfix] stop smtpd(8) on ubuntu when, and only if, the package has been installed
+* 1d4fea4 [bugfix] Update README (#40)
+* ee77e47 [bugfix] QA (#39)
+
 ## Release 1.4.1
 
 * e0d24dd [bugfix] opensmtpd_virtual_user defaults to an empty dict, instead of `None` (#36)
