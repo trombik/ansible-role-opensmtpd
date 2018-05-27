@@ -1,3 +1,10 @@
+## Release 1.6.0
+
+* 7d9b44d [bugfix] workaround an issue in galaxy
+* 8622db5 [bugfix] bump OpenBSD version in the integration tests
+* 374619a [bugfix] ensure the daemon is notified after `Start opensmtpd` task
+* 4452848 [feature] support FreeBSD 10.4, and OpenBSD 6.3
+
 ## Release 1.5.0
 
 * 0a32670 [feature] support ubuntu 14.04 and 18.04 (#42)
