@@ -132,12 +132,16 @@
     name: "{{ opensmtpd_service }}"
     state: started
 
-- name: Notify the daemon when file tables has been updated
-  # XXX this task is here to make sure the command is invoked while the daemon
-  # is running
-  command: "smtpctl update table {{ item.name }}"
-  with_items: "{{ __register_opensmtpd_tables.results | selectattr('changed') | map(attribute='item') | list }}"
-  no_log: "{{ item.no_log | default('yes') }}"
-  when:
-    - "'type' in item"
-    - "item.type == 'file'"
+- name: Trigger Notify the daemon when file tables has been updated
+  # XXX the triggering task must be executed after `Create smtpd.conf(5)` and
+  # `Start opensmtpd` tasks. the followings are prerequisites:
+  #
+  # - all tables have been created
+  # - smtpd.conf(5) has been created
+  # - smtpd(8) has been reloaded with the latest smtpd.conf(5)
+  #
+  # as such, calling the handler must be placed after `Start opensmtpd` task.
+  debug:
+    msg: Notify the daemon when file tables has been updated
+  notify: Notify the daemon when file tables has been updated
+  changed_when: __register_opensmtpd_tables.results | selectattr('changed') | map(attribute='item') | selectattr('type', 'equalto', 'file') | list | length > 0

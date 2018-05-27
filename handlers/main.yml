@@ -4,3 +4,13 @@
   service:
     name: "{{ opensmtpd_service }}"
     state: restarted
+
+- name: Notify the daemon when file tables has been updated
+  # XXX this task is here to make sure the command is invoked while the daemon
+  # is running
+  command: "smtpctl update table {{ item.name }}"
+  with_items: "{{ __register_opensmtpd_tables.results | selectattr('changed') | map(attribute='item') | list }}"
+  no_log: "{{ item.no_log | default('yes') }}"
+  when:
+    - "'type' in item"
+    - "item.type == 'file'"
