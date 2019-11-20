@@ -1,6 +1,7 @@
 ---
 galaxy_info:
   author: Tomoyuki Sakurai
+  role_name: trombik.opensmtpd
   description: Configures OpenSMTPD
   license: BSD
   company: N/A
@@ -8,22 +9,15 @@ galaxy_info:
   platforms:
   - name: FreeBSD
     versions:
-    #- 10.4
-    - 11.1
+      - 12.0
   - name: OpenBSD
     versions:
-    - 6.2
-    #- 6.3
+    - 6.5
   - name: Ubuntu
     versions:
-    - trusty
     - xenial
-    - bionic
-#  - name: EL
-#    versions:
-#    - 7
 
   galaxy_tags:
     - smtpd
     - opensmtpd
-dependencies:
+dependencies: []

@@ -109,8 +109,24 @@ None
 ```yaml
 - hosts: localhost
   roles:
-    - ansible-role-opensmtpd
+    - role: trombik.freebsd_pkg_repo
+      when:
+        - ansible_os_family == 'FreeBSD'
+    - role: ansible-role-opensmtpd
   vars:
+    freebsd_pkg_repo:
+      FreeBSD:
+        enabled: "false"
+        state: present
+      FreeBSD_latest:
+        enabled: "true"
+        state: present
+        url: pkg+https://pkg.FreeBSD.org/${ABI}/latest
+        mirror_type: srv
+        signature_type: fingerprints
+        fingerprints: /usr/share/keys/pkg
+        priority: 100
+
     test_user: john@example.org
     # smtpctl encrypt PassWord
     test_password: "$2b$08$LT/AdE2YSHb19d3hB27.4uXd1/Cj0qQIWc4FdfLlcuqnCUGbRu2Mq"
@@ -211,9 +227,19 @@ None
 
       {% endfor %}
       listen on {% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}lo0{% else %}lo{% endif %} port 25
+
+      {% if ansible_os_family == 'OpenBSD' or ansible_os_family == 'FreeBSD' %}
+      # new format
+      action "local_mail" maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
+      action "outbound" relay
+      match from any for domain <domains> action "local_mail"
+      match from src <mynetworks> action "outbound"
+      {% else %}
+      # old format
       accept from any for domain <domains> virtual <virtuals> \
         deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
       accept from source <mynetworks> for any relay
+      {% endif %}
 ```
 
 # License

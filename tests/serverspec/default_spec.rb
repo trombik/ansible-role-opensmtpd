@@ -219,7 +219,13 @@ describe file(config) do
              "lo0"
            end
   its(:content) { should match(/^listen on #{int_lo} port 25$/) }
-  its(:content) { should match(/^#{Regexp.escape("accept from any for domain <domains> virtual <virtuals> \\")}\n\s+#{Regexp.escape("deliver to maildir \"#{virtual_user[:home]}/%{dest.domain}/%{dest.user}/Maildir\"")}$/) }
+  case os[:family]
+  when "freebsd", "openbsd"
+    its(:content) { should match(/^#{Regexp.escape('action "local_mail" maildir "/var/vmail/%{dest.domain}/%{dest.user}/Maildir"')}$/) }
+    its(:content) { should match(/^#{Regexp.escape('action "outbound" relay')}$/) }
+  else
+    its(:content) { should match(/^#{Regexp.escape("accept from any for domain <domains> virtual <virtuals> \\")}\n\s+#{Regexp.escape("deliver to maildir \"#{virtual_user[:home]}/%{dest.domain}/%{dest.user}/Maildir\"")}$/) }
+  end
 end
 
 case os[:family]

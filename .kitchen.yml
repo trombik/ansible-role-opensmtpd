@@ -21,9 +21,9 @@ provisioner:
     - filter_plugins
 
 platforms:
-  - name: freebsd-10.4-amd64
+  - name: freebsd-12.0-amd64
     driver:
-      box: trombik/ansible-freebsd-10.4-amd64
+      box: trombik/ansible-freebsd-12.0-amd64
       box_check_update: false
     driver_config:
       ssh:
@@ -32,43 +32,16 @@ platforms:
       extra_vars:
         ansible_python_interpreter: '/usr/local/bin/python'
 
-  - name: freebsd-11.1-amd64
+  - name: openbsd-6.5-amd64
     driver:
-      box: trombik/ansible-freebsd-11.1-amd64
+      box: trombik/ansible-openbsd-6.5-amd64
       box_check_update: false
     driver_config:
       ssh:
         shell: '/bin/sh'
     provisioner:
       extra_vars:
-        ansible_python_interpreter: '/usr/local/bin/python'
-
-  - name: openbsd-6.2-amd64
-    driver:
-      box: trombik/ansible-openbsd-6.2-amd64
-      box_check_update: false
-    driver_config:
-      ssh:
-        shell: '/bin/sh'
-    provisioner:
-      extra_vars:
-        ansible_python_interpreter: '/usr/local/bin/python'
-
-  - name: openbsd-6.3-amd64
-    driver:
-      box: trombik/ansible-openbsd-6.3-amd64
-      box_check_update: false
-    driver_config:
-      ssh:
-        shell: '/bin/sh'
-    provisioner:
-      extra_vars:
-        ansible_python_interpreter: '/usr/local/bin/python'
-
-  - name: ubuntu-14.04-amd64
-    driver:
-      box: trombik/ansible-ubuntu-14.04-amd64
-      box_check_update: false
+        ansible_python_interpreter: '/usr/local/bin/python3'
 
   - name: ubuntu-16.04-amd64
     driver:
@@ -101,8 +74,8 @@ suites:
       name: shell
       command: rspec -c -f d -I tests/serverspec tests/serverspec/x509_spec.rb
     includes:
-      - freebsd-11.1-amd64
-      - openbsd-6.2-amd64
+      - freebsd-12.0-amd64
+      - openbsd-6.4-amd64
   - name: without_virtual_user
     provisioner:
       name: ansible_playbook
@@ -111,4 +84,4 @@ suites:
       name: shell
       command: rspec -c -f d -I tests/serverspec tests/serverspec/without_virtual_user_spec.rb
     includes:
-      - freebsd-11.1-amd64
+      - freebsd-12.0-amd64
