@@ -1,7 +1,13 @@
 ---
 
-- name: Send a message from client to john@example.org
-  shell: 'echo test | mail -s "Test message to john@example.org" john@example.org'
+- name: Create a digest
+  set_fact:
+    now: "{{ ansible_date_time.epoch | hash('sha1') }}"
 
-- name: Send a message from client to abuse@example.net (virtual domain)
-  shell: 'echo test | mail -s "Test message to abuse@example.net" abuse@example.net'
+- name: Create a file that contains the first digest
+  copy:
+    content: "{{ now }}"
+    dest: /tmp/digest1
+
+- name: Send a message from client to vagrant@example.org
+  shell: 'echo {{ now }}  | mail -s "Test message to vagrant@example.org" vagrant@example.org'

@@ -44,6 +44,13 @@ def read_remote_file(host, filename):
     return f.content.decode('utf-8')
 
 
+def read_digest(host, filename):
+    uri = "ansible://client1?ansible_inventory=%s" \
+            % os.environ['MOLECULE_INVENTORY_FILE']
+    client1 = host.get_host(uri)
+    return read_remote_file(client1, filename)
+
+
 def is_docker(host):
     ansible_facts = get_ansible_facts(host)
     if 'ansible_virtualization_type' in ansible_facts:
@@ -109,3 +116,13 @@ def test_port(host):
             "tcp://%s:%d" % (get_ip_address(host), get_port_number(host)))
 
     assert p.is_listening
+
+
+def test_find_digest1_in_mbox(host):
+    ansible_vars = get_ansible_vars(host)
+    if ansible_vars['inventory_hostname'] == 'server1':
+        content = read_digest(host, '/tmp/digest1')
+        cmd = host.run("grep -- '%s' /var/mail/vagrant", content)
+
+        assert content is not None
+        assert cmd.succeeded
