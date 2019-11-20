@@ -1,0 +1,7 @@
+---
+
+- name: Send a message from client to john@example.org
+  shell: 'echo test | mail -s "Test message to john@example.org" john@example.org'
+
+- name: Send a message from client to abuse@example.net (virtual domain)
+  shell: 'echo test | mail -s "Test message to abuse@example.net" abuse@example.net'
