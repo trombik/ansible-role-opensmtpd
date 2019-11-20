@@ -45,6 +45,5 @@
 
 - name: Install opensmtpd_extra_packages
   pkgng:
-    name: "{{ item }}"
+    name: "{{ opensmtpd_extra_packages }}"
     state: present
-  with_items: "{{ opensmtpd_extra_packages }}"

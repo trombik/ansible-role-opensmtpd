@@ -1,9 +1,24 @@
 - hosts: localhost
   roles:
-    - ansible-role-opensmtpd
+    - role: trombik.freebsd_pkg_repo
+      when:
+        - ansible_os_family == 'FreeBSD'
+    - role: ansible-role-opensmtpd
   vars:
     # a test case when opensmtpd_virtual_user is an empty dict
     # https://github.com/trombik/ansible-role-opensmtpd/pull/35
+    freebsd_pkg_repo:
+      FreeBSD:
+        enabled: "false"
+        state: present
+      FreeBSD_latest:
+        enabled: "true"
+        state: present
+        url: pkg+https://pkg.FreeBSD.org/${ABI}/latest
+        mirror_type: srv
+        signature_type: fingerprints
+        fingerprints: /usr/share/keys/pkg
+        priority: 100
     opensmtpd_tables:
       - name: domains
         path: "{{ opensmtpd_conf_dir }}/domains"
@@ -20,4 +35,6 @@
 
       {% endfor %}
       listen on {% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}lo0{% else %}lo{% endif %} port 25
-      accept from any for domain <domains> deliver to mbox
+
+      action "local_mail" mbox
+      match from any for domain <domains> action "local_mail"

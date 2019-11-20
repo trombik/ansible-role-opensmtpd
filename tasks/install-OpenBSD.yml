@@ -8,6 +8,5 @@
 
 - name: Install opensmtpd_extra_packages
   openbsd_pkg:
-    name: "{{ item }}"
+    name: "{{ opensmtpd_extra_packages }}"
     state: present
-  with_items: "{{ opensmtpd_extra_packages }}"

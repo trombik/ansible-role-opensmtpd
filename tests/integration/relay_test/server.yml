@@ -12,7 +12,7 @@
     - role: trombik.pf
       when:
         - ansible_os_family == 'OpenBSD'
-    - role: trombik.x509-certificate
+    - role: trombik.x509_certificate
     - role: ansible-role-opensmtpd
   vars:
     pf_rule: |

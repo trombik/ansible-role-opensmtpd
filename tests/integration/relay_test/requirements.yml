@@ -1,4 +1,4 @@
 ---
 
 - name: trombik.pf
-- name: trombik.x509-certificate
+- name: trombik.x509_certificate

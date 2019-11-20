@@ -39,7 +39,7 @@
   include_tasks: "install-{{ ansible_os_family }}.yml"
 
 - include_role:
-    name: trombik.x509-certificate
+    name: trombik.x509_certificate
   when:
     - opensmtpd_include_x509_certificate
 
@@ -124,7 +124,7 @@
   template:
     src: smtpd.conf.j2
     dest: "{{ opensmtpd_conf_file }}"
-    validate: smtpd -n -f %s
+    # validate: smtpd -n -f %s
   notify: Restart opensmtpd
 
 - name: Start opensmtpd

@@ -27,6 +27,11 @@ stderr_msg = "depth=0 C = TH, ST = Bangkok, O = Internet Widgits Pty Ltd, CN = a
 verify error:num=18:self signed certificate
 verify return:1
 depth=0 C = TH, ST = Bangkok, O = Internet Widgits Pty Ltd, CN = a.mx.trombik.org
+verify error:num=10:certificate has expired
+notAfter=Dec  1 03:57:09 2018 GMT
+verify return:1
+depth=0 C = TH, ST = Bangkok, O = Internet Widgits Pty Ltd, CN = a.mx.trombik.org
+notAfter=Dec  1 03:57:09 2018 GMT
 verify return:1
 DONE
 "
@@ -35,7 +40,8 @@ DONE
 # captured in the stdout
 describe command "(sleep 3; echo helo localhost)| openssl s_client -connect 127.0.0.1:587" do
   its(:stderr) { should eq stderr_msg }
-  its(:stdout) { should match(/^#{Regexp.escape("subject=/C=TH/ST=Bangkok/O=Internet Widgits Pty Ltd/CN=a.mx.trombik.org")}$/) }
+  # its(:stdout) { should match(/^#{Regexp.escape("subject=/C=TH/ST=Bangkok/O=Internet Widgits Pty Ltd/CN=a.mx.trombik.org")}$/) }
+  its(:stdout) { should match(/^#{Regexp.escape("subject=C = TH, ST = Bangkok, O = Internet Widgits Pty Ltd, CN = a.mx.trombik.org")}$/) }
   its(:stdout) { should match(/^#{Regexp.escape("220 a.mx.trombik.org ESMTP OpenSMTPD")}$/) }
   its(:exit_status) { should eq 0 }
 end

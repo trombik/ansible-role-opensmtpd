@@ -132,7 +132,8 @@ describe file(config) do
              "lo0"
            end
   its(:content) { should match(/^listen on #{int_lo} port 25$/) }
-  its(:content) { should match(/^#{Regexp.escape("accept from any for domain <domains> deliver to mbox")}$/) }
+  its(:content) { should match(/^#{Regexp.escape('action "local_mail" mbox')}$/) }
+  its(:content) { should match(/^#{Regexp.escape('match from any for domain <domains> action "local_mail"')}$/) }
 end
 
 case os[:family]
