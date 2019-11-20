@@ -1,3 +1,5 @@
+---
+
 opensmtpd_user: "{{ __opensmtpd_user }}"
 opensmtpd_group: "{{ __opensmtpd_group }}"
 opensmtpd_service: "{{ __opensmtpd_service }}"
