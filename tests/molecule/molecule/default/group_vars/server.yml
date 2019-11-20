@@ -14,10 +14,8 @@ project_mynetworks:
 project_rules: |
   {% if ansible_os_family == 'OpenBSD' or ansible_os_family == 'FreeBSD' %}
   # new format
-  action "local_mail" maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
-  action "outbound" relay
+  action "local_mail" mbox
   match from any for domain <domains> action "local_mail"
-  match from src <mynetworks> action "outbound"
   {% else %}
   # old format
   accept from any for domain <domains> virtual <virtuals> \
