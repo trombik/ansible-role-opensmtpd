@@ -11,6 +11,6 @@ The server has `smtpd(8)` listening on an interface for private network port
 25, and accepts messages for domain `example.org` and `example.net`.
 
 The scenario has a side-effect play that sends two messages to recipients in
-the domains.
+the domains (FIXME: the side-effect sends a single message only).
 
 The test will see if the messages are delivered to the recipients.
