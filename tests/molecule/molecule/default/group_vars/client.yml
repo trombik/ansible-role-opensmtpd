@@ -1,0 +1,23 @@
+---
+project_hostname_fqdn: client1.example.org
+
+os_project_listen_on_interface:
+  FreeBSD: lo0
+  OpenBSD: lo0
+  Debian: lo
+  RedHat: lo
+# XXX mynetworks
+project_listen_on_interface: "{{ os_project_listen_on_interface[ansible_os_family] }}"
+project_listen_on_port: 10025
+
+project_mynetworks:
+  - 127.0.0.0/8
+project_rules: |
+  {% if ansible_os_family == 'OpenBSD' or ansible_os_family == 'FreeBSD' %}
+  # new format
+  action "outbound" relay host smtp://192.168.21.200:25
+  match for any action "outbound"
+  {% else %}
+  # old format
+  accept from source <mynetworks> for any relay
+  {% endif %}

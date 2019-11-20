@@ -1,0 +1,8 @@
+---
+
+hosts_enable_localhost: yes
+hosts_map:
+  "192.168.21.200":
+    - server1
+  "192.168.21.100":
+    - client1

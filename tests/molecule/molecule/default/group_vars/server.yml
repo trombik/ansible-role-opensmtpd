@@ -1,0 +1,26 @@
+---
+project_hostname_fqdn: server1.example.org
+
+os_project_listen_on_interface:
+  FreeBSD: em1
+  OpenBSD: em1
+  Debian: eth1
+  RedHat: eth1
+project_listen_on_interface: "{{ os_project_listen_on_interface[ansible_os_family] }}"
+project_listen_on_port: 25
+
+project_mynetworks:
+  - 172.16.0.0/16
+project_rules: |
+  {% if ansible_os_family == 'OpenBSD' or ansible_os_family == 'FreeBSD' %}
+  # new format
+  action "local_mail" maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
+  action "outbound" relay
+  match from any for domain <domains> action "local_mail"
+  match from src <mynetworks> action "outbound"
+  {% else %}
+  # old format
+  accept from any for domain <domains> virtual <virtuals> \
+    deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
+  accept from source <mynetworks> for any relay
+  {% endif %}
