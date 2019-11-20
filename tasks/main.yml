@@ -133,7 +133,7 @@
     name: "{{ opensmtpd_service }}"
     state: started
 
-- name: Trigger Notify the daemon when file tables has been updated
+- name: Notify the daemon when file tables has been updated
   # XXX the triggering task must be executed after `Create smtpd.conf(5)` and
   # `Start opensmtpd` tasks. the followings are prerequisites:
   #
