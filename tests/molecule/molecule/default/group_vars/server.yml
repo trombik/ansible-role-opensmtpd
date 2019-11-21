@@ -27,9 +27,10 @@ project_rules: |
   match from any for domain <virtual_domains> action "virtual_mail"
   {% else %}
   # old format
-  accept from any for domain <domains> virtual <virtuals> \
+  accept from any for virtual <virtual_domains> \
     deliver to maildir "{{ opensmtpd_virtual_user['home'] }}/%{dest.domain}/%{dest.user}/Maildir"
-  accept from source <mynetworks> for any relay
+  accept from any for domain <domains> \
+    deliver to mbox
   {% endif %}
 
 # XXX table_passwd in Ubuntu package throws error when UID or GID field is

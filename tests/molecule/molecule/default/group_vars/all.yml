@@ -19,7 +19,7 @@ freebsd_pkg_repo:
     signature_type: fingerprints
     fingerprints: /usr/share/keys/pkg
     priority: 100
-opensmtpd_extra_packages: "{% if ansible_os_family == 'FreeBSD' %}[ 'opensmtpd-extras-table-passwd' ]{% else %}[ 'opensmtpd-extras' ]{% endif %}"
+opensmtpd_extra_packages: "{% if ansible_os_family == 'FreeBSD' %}[ 'opensmtpd-extras-table-passwd' ]{% else %}[]{% endif %}"
 opensmtpd_extra_groups: "{% if ansible_os_family == 'FreeBSD' %}[ 'nobody' ]{% else %}[ 'games' ]{% endif %}"
 
 opensmtpd_config: |
