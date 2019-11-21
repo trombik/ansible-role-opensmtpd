@@ -131,5 +131,6 @@
       # old format
       accept from any for domain <domains> virtual <virtuals> \
         deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
-      accept from source <mynetworks> for any relay
+      accept from any for domain <domains> \
+        deliver to mbox
       {% endif %}

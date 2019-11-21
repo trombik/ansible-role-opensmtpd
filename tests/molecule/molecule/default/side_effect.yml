@@ -4,4 +4,6 @@
   hosts: all
   roles:
     - role: side_effect
+      when:
+        - ansible_hostname == 'client1'
   vars:

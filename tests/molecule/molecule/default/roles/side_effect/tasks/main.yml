@@ -33,5 +33,5 @@
     content: "{{ now }}"
     dest: /tmp/digest3
 
-- name: Send a message from client to vagrant@example.org
+- name: Send a message from client to abuse@example.net
   shell: 'echo {{ now }}  | mail -s "Third test message to abuse@example.net" abuse@example.net'
