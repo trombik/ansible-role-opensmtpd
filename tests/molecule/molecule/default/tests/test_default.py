@@ -126,3 +126,27 @@ def test_find_digest1_in_mbox(host):
 
         assert content is not None
         assert cmd.succeeded
+
+
+def test_find_digest2_in_mbox(host):
+    ansible_vars = get_ansible_vars(host)
+    if ansible_vars['inventory_hostname'] == 'server1':
+        content = read_digest(host, '/tmp/digest2')
+        cmd = host.run("grep -- '%s' /var/mail/vagrant", content)
+
+        assert content is not None
+        assert cmd.succeeded
+
+
+def test_find_digest3_in_mbox(host):
+    ansible_vars = get_ansible_vars(host)
+    if ansible_vars['inventory_hostname'] == 'server1':
+        content = read_digest(host, '/tmp/digest3')
+        with host.sudo():
+            cmd = host.run(
+                    "grep -- '%s' /var/vmail/example.net/john/Maildir/new/*",
+                    content
+                  )
+
+        assert content is not None
+        assert cmd.succeeded

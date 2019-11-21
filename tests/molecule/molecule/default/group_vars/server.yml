@@ -9,16 +9,108 @@ os_project_listen_on_interface:
 project_listen_on_interface: "{{ os_project_listen_on_interface[ansible_os_family] }}"
 project_listen_on_port: 25
 
+opensmtpd_virtual_user:
+  name: vmail
+  group: vmail
+  home: /var/vmail
+  comment: Virtual Mail User
+
 project_mynetworks:
   - 172.16.0.0/16
+
 project_rules: |
   {% if ansible_os_family == 'OpenBSD' or ansible_os_family == 'FreeBSD' %}
   # new format
   action "local_mail" mbox
+  action "virtual_mail" maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir" virtual <virtuals>
   match from any for domain <domains> action "local_mail"
+  match from any for domain <virtual_domains> action "virtual_mail"
   {% else %}
   # old format
   accept from any for domain <domains> virtual <virtuals> \
-    deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
+    deliver to maildir "{{ opensmtpd_virtual_user['home'] }}/%{dest.domain}/%{dest.user}/Maildir"
   accept from source <mynetworks> for any relay
   {% endif %}
+
+# XXX table_passwd in Ubuntu package throws error when UID or GID field is
+# empty
+passwd_postfix: "{% if ansible_os_family == 'Debian' %}:12345:12345:::{% else %}:::::{% endif %}"
+project_test_user: john@example.org
+project_test_password: "$2b$08$LT/AdE2YSHb19d3hB27.4uXd1/Cj0qQIWc4FdfLlcuqnCUGbRu2Mq"
+
+opensmtpd_tables:
+  - name: aliases
+    path: "{{ opensmtpd_conf_dir }}/aliases"
+    type: file
+    format: aliases
+    mode: "644"
+    no_log: no
+    values:
+      - "MAILER-DAEMON: postmaster"
+      - "postmaster: root"
+      - "daemon: root"
+      - "ftp-bugs: root"
+      - "operator: root"
+      - "www:    root"
+      - "foo: error:500 no such user"
+      - "bar: | cat - >/dev/null"
+  - name: secrets
+    path: "{{ opensmtpd_conf_dir }}/secrets"
+    type: file
+    owner: root
+    group: "{{ opensmtpd_group }}"
+    mode: "0640"
+    no_log: yes
+    values:
+      - "{{ project_test_user }} {{ project_test_password }}"
+  - name: passwd
+    # XXX Ubuntu package does not allow non-defalt path to smtpd.conf(5)
+    # as such, all files are under opensmtpd_conf_dir. use smtpd_passwd,
+    # instead of consistent file name, `passwd`.
+    path: "{{ opensmtpd_conf_dir }}/smtpd_passwd"
+    type: passwd
+    owner: root
+    group: "{{ opensmtpd_group }}"
+    mode: "0640"
+    no_log: no
+    values:
+      - "{{ project_test_user }}:{{ project_test_password }}{{ passwd_postfix }}"
+  - name: domains
+    path: "{{ opensmtpd_conf_dir }}/domains"
+    type: file
+    owner: root
+    group: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}wheel{% else %}root{% endif %}"
+    mode: "0644"
+    no_log: no
+    values:
+      - example.org
+  - name: virtual_domains
+    path: "{{ opensmtpd_conf_dir }}/virtual_domains"
+    type: file
+    owner: root
+    group: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}wheel{% else %}root{% endif %}"
+    mode: "0644"
+    no_log: no
+    values:
+      - example.net
+  - name: virtuals
+    path: "{{ opensmtpd_conf_dir }}/virtuals"
+    type: db
+    dbtype: hash
+    format: aliases
+    owner: root
+    group: vmail
+    mode: "0444"
+    values:
+      - abuse@example.org john@example.org
+      - postmaster@example.org john@example.org
+      - john@example.org {{ opensmtpd_virtual_user.name }}
+      - abuse@example.net john@example.net
+      - postmaster@example.net john@example.net
+      - john@example.net {{ opensmtpd_virtual_user.name }}
+  - name: mynetworks
+    path: "{{ opensmtpd_conf_dir }}/mynetworks"
+    type: db
+    format: set
+    no_log: no
+    values: "{{ project_mynetworks }}"
