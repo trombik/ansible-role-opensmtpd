@@ -11,3 +11,27 @@
 
 - name: Send a message from client to vagrant@example.org
   shell: 'echo {{ now }}  | mail -s "Test message to vagrant@example.org" vagrant@example.org'
+
+- name: Create second digest
+  set_fact:
+    now: "{{ ansible_date_time.iso8601 | hash('sha1') }}"
+
+- name: Create a file that contains the second digest
+  copy:
+    content: "{{ now }}"
+    dest: /tmp/digest2
+
+- name: Send a message from client to vagrant@example.org
+  shell: 'echo {{ now }}  | mail -s "Second test message to vagrant@example.org" vagrant@example.org'
+
+- name: Create third digest
+  set_fact:
+    now: "{{ ansible_date_time.iso8601_basic_short | hash('sha1') }}"
+
+- name: Create a file that contains the third digest
+  copy:
+    content: "{{ now }}"
+    dest: /tmp/digest3
+
+- name: Send a message from client to vagrant@example.org
+  shell: 'echo {{ now }}  | mail -s "Third test message to abuse@example.net" abuse@example.net'

@@ -21,3 +21,5 @@ project_rules: |
   # old format
   accept from source <mynetworks> for any relay
   {% endif %}
+
+opensmtpd_tables: []
