@@ -1,3 +1,21 @@
+## Release 1.6.1
+
+* 6bc5dad bugfix: QA
+* 9c34dba bugfix: test the virtual domain
+* 4f57872 bugfix: create mailer.conf(5) on FreeBSD
+* 1e4f52b bugfix: add yamllint
+* 7e06a19 bugfix: QA
+* f8495ed bugfix: ignore false positives
+* 7bb4846 bugfix: QA
+* 391dd38 bugfix: document WIP status
+* 585a450 bugfix: test if a message is delivered to the recipient
+* d1507da bugfix:: introduce molecule tests
+* 746b096 bugfix: QA
+* ae1336a bugfix: update gitignore
+* 6505628 bugfix: update boxes, smtpd.conf, and tests
+* f9e830f bugfix: add ansible.cfg
+* b69199a QA
+
 ## Release 1.6.0
 
 * 7d9b44d [bugfix] workaround an issue in galaxy
