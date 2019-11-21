@@ -1,5 +1,8 @@
 ---
-project_hostname_fqdn: server1.example.org
+os_project_hostname_fqdn:
+  FreeBSD: server1.example.org
+  Debian: server1
+project_hostname_fqdn: "{{ os_project_hostname_fqdn[ansible_os_family] }}"
 
 os_project_listen_on_interface:
   FreeBSD: em1
@@ -21,16 +24,16 @@ project_mynetworks:
 project_rules: |
   {% if ansible_os_family == 'OpenBSD' or ansible_os_family == 'FreeBSD' %}
   # new format
-  action "local_mail" mbox
+  action "local_mail" maildir
   action "virtual_mail" maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir" virtual <virtuals>
   match from any for domain <domains> action "local_mail"
   match from any for domain <virtual_domains> action "virtual_mail"
   {% else %}
   # old format
-  accept from any for virtual <virtual_domains> \
+  accept from any for domain <virtual_domains> virtual <virtuals> \
     deliver to maildir "{{ opensmtpd_virtual_user['home'] }}/%{dest.domain}/%{dest.user}/Maildir"
   accept from any for domain <domains> \
-    deliver to mbox
+    deliver to maildir "/home/%{dest.user}/Maildir"
   {% endif %}
 
 # XXX table_passwd in Ubuntu package throws error when UID or GID field is

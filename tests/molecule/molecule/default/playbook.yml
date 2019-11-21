@@ -6,6 +6,7 @@
     - name: Dump all hostvars
       debug:
         var: hostvars[inventory_hostname]
+  post_tasks:
     - name: List all services (systemd)
       # workaround ansible-lint: [303] service used in place of service module
       shell: "echo; systemctl list-units --type service"
@@ -35,4 +36,6 @@
     - role: trombik.freebsd_pkg_repo
       when:
         - ansible_os_family == 'FreeBSD'
+    - role: docker
+      when: ansible_virtualization_type == 'docker'
     - role: ansible-role-opensmtpd

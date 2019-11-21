@@ -125,7 +125,7 @@
   template:
     src: smtpd.conf.j2
     dest: "{{ opensmtpd_conf_file }}"
-    # validate: smtpd -n -f %s
+    validate: smtpd -n -f %s
   notify: Restart opensmtpd
 
 - name: Start opensmtpd

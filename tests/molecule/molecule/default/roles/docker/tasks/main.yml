@@ -1,0 +1,19 @@
+---
+
+- name: Install ping
+  # XXX iputils-ping is not installed on the docker image
+  apt:
+    name: iputils-ping
+    state: present
+  when:
+    - ansible_os_family == 'Debian'
+
+- name: Install mailutils
+  apt:
+    name: mailutils
+  when:
+    - ansible_os_family == 'Debian'
+
+- name: Create vagrant user
+  user:
+    name: vagrant

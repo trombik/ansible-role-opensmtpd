@@ -1,5 +1,8 @@
 ---
-project_hostname_fqdn: client1.example.org
+os_project_hostname_fqdn:
+  FreeBSD: client1.example.org
+  Debian: client1
+project_hostname_fqdn: "{{ os_project_hostname_fqdn[ansible_os_family] }}"
 
 os_project_listen_on_interface:
   FreeBSD: lo0
