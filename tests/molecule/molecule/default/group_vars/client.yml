@@ -19,7 +19,7 @@ project_rules: |
   match for any action "outbound"
   {% else %}
   # old format
-  accept from source <mynetworks> for any relay
+  accept from any for any relay via smtp://server1:25
   {% endif %}
 
 opensmtpd_tables: []

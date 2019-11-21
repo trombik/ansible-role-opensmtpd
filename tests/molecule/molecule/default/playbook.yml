@@ -27,6 +27,12 @@
         - ansible_os_family == 'OpenBSD'
   roles:
     - role: trombik.hostname
+      # XXX fails in docker "[Errno 16] Device or resource busy"
+      when: ansible_virtualization_type != 'docker'
     - role: trombik.hosts
+      # XXX same as in trombik.hostname
+      when: ansible_virtualization_type != 'docker'
     - role: trombik.freebsd_pkg_repo
+      when:
+        - ansible_os_family == 'FreeBSD'
     - role: ansible-role-opensmtpd
