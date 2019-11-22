@@ -42,6 +42,7 @@ below. When non-empty dict, the user and its home directory are created.
 | `home` | Home directory of the user | yes |
 | `name` | Name of the user | yes |
 | `uid` | UID of the user | no |
+| `mode` | The mode of `home` directory. If omitted, the mode is set by system default | no |
 
 ## `opensmtpd_tables`
 
@@ -107,13 +108,22 @@ None
 # Example Playbook
 
 ```yaml
+---
+
 - hosts: localhost
   roles:
+    - name: trombik.redhat_repo
+      when: ansible_os_family == 'RedHat'
     - role: trombik.freebsd_pkg_repo
       when:
         - ansible_os_family == 'FreeBSD'
     - role: ansible-role-opensmtpd
   vars:
+    os_default_group:
+      FreeBSD: wheel
+      OpenBSD: wheel
+      Debian: root
+      RedHat: root
     freebsd_pkg_repo:
       FreeBSD:
         enabled: "false"
@@ -126,20 +136,49 @@ None
         signature_type: fingerprints
         fingerprints: /usr/share/keys/pkg
         priority: 100
+    redhat_repo:
+      epel:
+        mirrorlist: "http://mirrors.fedoraproject.org/mirrorlist?repo=epel-{{ ansible_distribution_major_version }}&arch={{ ansible_architecture }}"
+        gpgcheck: yes
+        enabled: yes
 
     test_user: john@example.org
     # smtpctl encrypt PassWord
     test_password: "$2b$08$LT/AdE2YSHb19d3hB27.4uXd1/Cj0qQIWc4FdfLlcuqnCUGbRu2Mq"
     # XXX table_passwd in Ubuntu package throws error when UID or GID field is
     # empty
-    passwd_postfix: "{% if ansible_os_family == 'Debian' %}:12345:12345:::{% else %}:::::{% endif %}"
-    opensmtpd_extra_packages: "{% if ansible_os_family == 'FreeBSD' %}[ 'opensmtpd-extras-table-passwd' ]{% elif ansible_distribution == 'Ubuntu' and (ansible_distribution_version == '18.04' or ansible_distribution_version == '14.04') %}[]{% else %}[ 'opensmtpd-extras' ]{% endif %}"
-    opensmtpd_extra_groups: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}[ 'nobody' ]{% else %}[ 'games' ]{% endif %}"
+    os_passwd_postfix:
+      FreeBSD: ":::::"
+      OpenBSD: ":::::"
+      Debian: ":12345:12345:::"
+      RedHat: ":12345:12345:::"
+    passwd_postfix: "{{ os_passwd_postfix[ansible_os_family] }}"
+
+    os_opensmtpd_extra_packages:
+      FreeBSD:
+        - opensmtpd-extras-table-passwd
+      OpenBSD:
+        - opensmtpd-extras
+      Debian: []
+      RedHat: []
+    opensmtpd_extra_packages: "{{ os_opensmtpd_extra_packages[ansible_os_family] }}"
+
+    os_opensmtpd_extra_groups:
+      FreeBSD:
+        - nobody
+      OpenBSD:
+        - nobody
+      Debian:
+        - games
+      RedHat:
+        - games
+    opensmtpd_extra_groups: "{{ os_opensmtpd_extra_groups[ansible_os_family] }}"
     opensmtpd_virtual_user:
       name: vmail
       group: vmail
       home: /var/vmail
       comment: Virtual Mail User
+      mode: "0755"
     opensmtpd_tables:
       - name: aliases
         path: "{{ opensmtpd_conf_dir }}/aliases"
@@ -162,7 +201,7 @@ None
         owner: root
         group: "{{ opensmtpd_group }}"
         mode: "0640"
-        no_log: yes
+        no_log: no
         values:
           - "{{ test_user }} {{ test_password }}"
       - name: passwd
@@ -181,7 +220,7 @@ None
         path: "{{ opensmtpd_conf_dir }}/domains"
         type: file
         owner: root
-        group: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}wheel{% else %}root{% endif %}"
+        group: "{{ os_default_group[ansible_os_family] }}"
         mode: "0644"
         no_log: no
         values:
@@ -195,6 +234,7 @@ None
         owner: root
         group: vmail
         mode: "0444"
+        no_log: no
         values:
           - abuse@example.org john@example.org
           - postmaster@example.org john@example.org
@@ -213,7 +253,7 @@ None
     opensmtpd_flags: -v
     opensmtpd_config: |
       {% for list in opensmtpd_tables %}
-      {% if list.type == 'passwd' and ansible_distribution == 'Ubuntu' and (ansible_distribution_version == '18.04' or ansible_distribution_version == '14.04') %}
+      {% if list.type == 'passwd' and (ansible_os_family == 'Debian' or ansible_os_family == 'RedHat') %}
       # XXX at the moment (2018/05/20), the version of opensmtpd-extras is
       # behind opensmtpd, causing "table-api: bad API version".
       # https://packages.ubuntu.com/bionic/opensmtpd-extras
@@ -230,15 +270,16 @@ None
 
       {% if ansible_os_family == 'OpenBSD' or ansible_os_family == 'FreeBSD' %}
       # new format
-      action "local_mail" maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
+      action "local_mail" maildir "{{ opensmtpd_virtual_user['home'] }}/%{dest.domain}/%{dest.user}/Maildir"
       action "outbound" relay
       match from any for domain <domains> action "local_mail"
       match from src <mynetworks> action "outbound"
       {% else %}
       # old format
       accept from any for domain <domains> virtual <virtuals> \
-        deliver to maildir "{{ opensmtpd_virtual_user.home }}/%{dest.domain}/%{dest.user}/Maildir"
-      accept from source <mynetworks> for any relay
+        deliver to maildir "{{ opensmtpd_virtual_user['home'] }}/%{dest.domain}/%{dest.user}/Maildir"
+      accept from any for domain <domains> \
+        deliver to mbox
       {% endif %}
 ```
 

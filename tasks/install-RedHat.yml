@@ -1,0 +1,16 @@
+---
+
+- name: Install opensmtpd_extra_packages
+  yum:
+    name: "{{ opensmtpd_extra_packages }}"
+    state: present
+
+- name: Install opensmtpd
+  yum:
+    name: "{{ opensmtpd_package_name }}"
+  register: __register_opensmtpd_apt
+
+- name: Enable opensmtpd
+  service:
+    name: "{{ opensmtpd_service }}"
+    enabled: yes
