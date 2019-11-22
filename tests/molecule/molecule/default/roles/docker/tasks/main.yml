@@ -1,18 +1,23 @@
 ---
 
-- name: Install ping
-  # XXX iputils-ping is not installed on the docker image
-  apt:
-    name: iputils-ping
+- name: "Include variables from {{ ansible_os_family }}.yml"
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install ping(8)
+  package:
+    name: "{{ docker_package_ping }}"
     state: present
   when:
-    - ansible_os_family == 'Debian'
+    - ansible_os_family != 'FreeBSD'
+    - ansible_os_family != 'OpenBSD'
 
-- name: Install mailutils
-  apt:
-    name: mailutils
+- name: Install mail(1)
+  package:
+    name: "{{ docker_package_mail }}"
+    state: present
   when:
-    - ansible_os_family == 'Debian'
+    - ansible_os_family != 'FreeBSD'
+    - ansible_os_family != 'OpenBSD'
 
 - name: Create vagrant user
   user:
