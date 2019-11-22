@@ -1,5 +1,10 @@
 ---
 
+- name: Install opensmtpd_extra_packages
+  yum:
+    name: "{{ opensmtpd_extra_packages }}"
+    state: present
+
 - name: Install opensmtpd
   yum:
     name: "{{ opensmtpd_package_name }}"
@@ -9,8 +14,3 @@
   service:
     name: "{{ opensmtpd_service }}"
     enabled: yes
-
-- name: Install opensmtpd_extra_packages
-  yum:
-    name: "{{ opensmtpd_extra_packages }}"
-    state: present
