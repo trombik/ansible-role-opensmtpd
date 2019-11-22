@@ -2,3 +2,4 @@
 
 docker_package_ping: iputils-ping
 docker_package_mail: mailutils
+docker_package_ss: iproute2
