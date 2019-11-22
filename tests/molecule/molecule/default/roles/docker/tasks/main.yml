@@ -19,6 +19,14 @@
     - ansible_os_family != 'FreeBSD'
     - ansible_os_family != 'OpenBSD'
 
+- name: Install ss (for testinfra)
+  package:
+    name: "{{ docker_package_ss }}"
+    state: present
+  when:
+    - ansible_os_family == 'RedHat'
+
+
 - name: Create vagrant user
   user:
     name: vagrant
