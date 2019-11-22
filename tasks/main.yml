@@ -13,14 +13,14 @@
 - name: Assert opensmtpd_virtual_user has mandatory keys
   assert:
     that:
-      - "'name' in opensmtpd_virtual_user"
-      - opensmtpd_virtual_user.name | length > 0
-      - "'group' in opensmtpd_virtual_user"
-      - opensmtpd_virtual_user.group | length > 0
-      - "'home' in opensmtpd_virtual_user"
-      - opensmtpd_virtual_user.home | length > 0
+      - opensmtpd_virtual_user['name'] is defined
+      - opensmtpd_virtual_user['name'] | length > 0
+      - opensmtpd_virtual_user['group'] is defined
+      - opensmtpd_virtual_user['group'] | length > 0
+      - opensmtpd_virtual_user['home'] is defined
+      - opensmtpd_virtual_user['home'] | length > 0
   when:
-    - opensmtpd_virtual_user
+    - opensmtpd_virtual_user | bool
 
 - name: Assert items in opensmtpd_tables have mandatory keys
   assert:
@@ -105,6 +105,17 @@
   when:
     - "'type' in item"
     - "item.type == 'db'"
+
+- name: Set mode on opensmtpd_virtual_user['home']
+  file:
+    path: "{{ opensmtpd_virtual_user['home'] }}"
+    mode: "{{ opensmtpd_virtual_user['mode'] }}"
+    state: directory
+  when:
+    - opensmtpd_virtual_user
+    - "'home' in opensmtpd_virtual_user"
+    - "'mode' in opensmtpd_virtual_user"
+
 
 - name: See if database files have been created
   command: "test -f {{ item.path }}.db"
