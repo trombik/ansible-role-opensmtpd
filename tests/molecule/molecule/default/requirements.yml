@@ -1,6 +1,7 @@
 ---
 
 - name: trombik.apt_repo
+- name: trombik.redhat_repo
 - name: trombik.hostname
 - name: trombik.hosts
 - name: trombik.x509_certificate

@@ -1,5 +1,6 @@
 ---
 
+- name: trombik.redhat_repo
 - name: trombik.apt_repo
 - name: trombik.hostname
 - name: trombik.hosts

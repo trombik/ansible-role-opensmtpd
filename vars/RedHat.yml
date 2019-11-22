@@ -1,0 +1,7 @@
+---
+__opensmtpd_user: smtpd
+__opensmtpd_group: smtpd
+__opensmtpd_service: opensmtpd
+__opensmtpd_conf_dir: /etc/opensmtpd
+__opensmtpd_package_name: opensmtpd
+__opensmtpd_makemap_bin: /sbin/makemap

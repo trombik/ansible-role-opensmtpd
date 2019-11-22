@@ -19,6 +19,13 @@ freebsd_pkg_repo:
     signature_type: fingerprints
     fingerprints: /usr/share/keys/pkg
     priority: 100
+
+redhat_repo:
+  epel:
+    mirrorlist: "http://mirrors.fedoraproject.org/mirrorlist?repo=epel-{{ ansible_distribution_major_version }}&arch={{ ansible_architecture }}"
+    gpgcheck: yes
+    enabled: yes
+
 opensmtpd_extra_packages: "{% if ansible_os_family == 'FreeBSD' %}[ 'opensmtpd-extras-table-passwd' ]{% else %}[]{% endif %}"
 opensmtpd_extra_groups: "{% if ansible_os_family == 'FreeBSD' %}[ 'nobody' ]{% else %}[ 'games' ]{% endif %}"
 
