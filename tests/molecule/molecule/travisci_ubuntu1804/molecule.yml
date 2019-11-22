@@ -50,6 +50,7 @@ provisioner:
   lint:
     name: ansible-lint
   playbooks:
+    prepare: prepare.yml
     converge: ../default/playbook.yml
     side_effect: ../default/side_effect.yml
   inventory:
