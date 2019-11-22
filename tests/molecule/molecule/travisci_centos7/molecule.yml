@@ -13,6 +13,7 @@ platforms:
   - name: server1
     hostname: server1
     image: centos/systemd
+    dockerfile: Dockerfile.j2
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     privileged: true
@@ -24,6 +25,7 @@ platforms:
   - name: client1
     hostname: client1
     image: centos/systemd
+    dockerfile: Dockerfile.j2
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     privileged: true
