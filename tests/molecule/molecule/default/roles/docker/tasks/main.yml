@@ -24,7 +24,8 @@
     name: "{{ docker_package_ss }}"
     state: present
   when:
-    - ansible_os_family == 'RedHat'
+    - ansible_os_family != 'FreeBSD'
+    - ansible_os_family != 'OpenBSD'
 
 
 - name: Create vagrant user
