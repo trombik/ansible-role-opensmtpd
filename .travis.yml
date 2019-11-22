@@ -88,7 +88,7 @@ script:
   - yamllint -c .yamllint.yml .
 
   # run the QA test
-  - echo qansible qa
+  - qansible qa
 
   # run molecule
   - echo TARGET_SCENARIO=${TARGET_SCENARIO}
