@@ -101,6 +101,17 @@ role during the play. See an example in
 | `__opensmtpd_package_name` | `""` |
 | `__opensmtpd_makemap_bin` | `/usr/sbin/makemap` |
 
+## RedHat
+
+| Variable | Default |
+|----------|---------|
+| `__opensmtpd_user` | `smtpd` |
+| `__opensmtpd_group` | `smtpd` |
+| `__opensmtpd_service` | `opensmtpd` |
+| `__opensmtpd_conf_dir` | `/etc/opensmtpd` |
+| `__opensmtpd_package_name` | `opensmtpd` |
+| `__opensmtpd_makemap_bin` | `/sbin/makemap` |
+
 # Dependencies
 
 None
