@@ -19,6 +19,14 @@
     - ansible_os_family != 'FreeBSD'
     - ansible_os_family != 'OpenBSD'
 
+- name: Install filesystem on CentOS  # noqa 403
+  # 'Could not find the requested service opensmtpd: '
+  # https://github.com/geerlingguy/docker-centos7-ansible/issues/4
+  yum:
+    name: filesystem
+    state: latest
+  when: ansible_os_family == 'RedHat'
+
 - name: Create vagrant user
   user:
     name: vagrant
