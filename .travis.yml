@@ -94,8 +94,9 @@ script:
   - echo TARGET_SCENARIO=${TARGET_SCENARIO}
   - |
     if [ -d "tests/molecule/molecule/${TARGET_SCENARIO}" ]; then
+      cd tests/molecule
       if molecule list; then
-        (cd tests/molecule && molecule test -s "${TARGET_SCENARIO}")
+        molecule test -s "${TARGET_SCENARIO}"
       fi
     fi
 
