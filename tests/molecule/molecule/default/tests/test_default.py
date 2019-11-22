@@ -87,6 +87,7 @@ def get_ip_address(host):
         elif ansible_facts['ansible_os_family'] == 'FreeBSD':
             return ansible_facts['ansible_em1']['ipv4'][0]['address']
         elif ansible_facts['ansible_os_family'] == 'RedHat':
+            return ansible_facts['ansible_eth1']['ipv4']['address']
         else:
             raise NameError(
                     "Unknown ansible_os_family `%s`" %
