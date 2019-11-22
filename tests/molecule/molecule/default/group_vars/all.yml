@@ -20,14 +20,15 @@ freebsd_pkg_repo:
     fingerprints: /usr/share/keys/pkg
     priority: 100
 
-redhat_repo:
-  epel:
-    mirrorlist: "http://mirrors.fedoraproject.org/mirrorlist?repo=epel-{{ ansible_distribution_major_version }}&arch={{ ansible_architecture }}"
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: https://getfedora.org/static/fedora.gpg
+os_opensmtpd_extra_packages:
+  FreeBSD:
+    - opensmtpd-extras-table-passwd
+  RedHat:
+    - epel-release
+  Debian: []
+  OpenBSD: []
 
-opensmtpd_extra_packages: "{% if ansible_os_family == 'FreeBSD' %}[ 'opensmtpd-extras-table-passwd' ]{% else %}[]{% endif %}"
+opensmtpd_extra_packages: "{{ os_opensmtpd_extra_packages[ansible_os_family] }}"
 opensmtpd_extra_groups: "{% if ansible_os_family == 'FreeBSD' %}[ 'nobody' ]{% else %}[ 'games' ]{% endif %}"
 
 opensmtpd_config: |
