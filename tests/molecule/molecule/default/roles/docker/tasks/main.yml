@@ -19,14 +19,6 @@
     - ansible_os_family != 'FreeBSD'
     - ansible_os_family != 'OpenBSD'
 
-- name: Install fake initctl
-  copy:
-    src: initctl_faker
-    dest: /sbin/initctl
-    mode: 0755
-  when:
-    - ansible_os_family == 'RedHat'
-
 - name: Create vagrant user
   user:
     name: vagrant

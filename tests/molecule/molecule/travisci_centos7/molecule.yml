@@ -18,6 +18,10 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     privileged: true
     pre_build_image: true
+    command: "/usr/sbin/init"
+    tty: True
+    environment:
+      container: docker
     networks:
       - name: shared
         aliases: server1
@@ -30,6 +34,10 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     privileged: true
     pre_build_image: true
+    command: "/usr/sbin/init"
+    tty: True
+    environment:
+      container: docker
     networks:
       - name: shared
         aliases: client1
