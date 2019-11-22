@@ -10,11 +10,13 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 def get_service_name(host):
     if host.system_info.distribution == 'freebsd':
         return 'smtpd'
-    if host.system_info.distribution == 'openbsd':
+    elif host.system_info.distribution == 'openbsd':
         return 'smtpd'
     elif host.system_info.distribution == 'ubuntu':
         return 'opensmtpd'
-    raise NameError('Unknown distribution')
+    elif host.system_info.distribution == 'centos':
+        return 'opensmtpd'
+    raise NameError("Unknown distribution %s" % host.system_info.distribution)
 
 
 def get_ansible_vars(host):
@@ -84,6 +86,8 @@ def get_ip_address(host):
             return ansible_facts['ansible_eth1']['ipv4']['address']
         elif ansible_facts['ansible_os_family'] == 'FreeBSD':
             return ansible_facts['ansible_em1']['ipv4'][0]['address']
+        elif ansible_facts['ansible_os_family'] == 'RedHat':
+            return ansible_facts['ansible_eth1']['ipv4']['address']
         else:
             raise NameError(
                     "Unknown ansible_os_family `%s`" %

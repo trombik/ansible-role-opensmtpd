@@ -36,6 +36,8 @@
     - role: trombik.freebsd_pkg_repo
       when:
         - ansible_os_family == 'FreeBSD'
+    - role: trombik.redhat_repo
+      when: ansible_os_family == 'RedHat'
     - role: docker
       when: ansible_virtualization_type == 'docker'
     - role: ansible-role-opensmtpd

@@ -1,0 +1,5 @@
+---
+
+docker_package_ping: iputils
+docker_package_mail: mailx
+docker_package_ss: iproute
