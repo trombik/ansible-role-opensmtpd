@@ -25,6 +25,7 @@ redhat_repo:
     mirrorlist: "http://mirrors.fedoraproject.org/mirrorlist?repo=epel-{{ ansible_distribution_major_version }}&arch={{ ansible_architecture }}"
     gpgcheck: yes
     enabled: yes
+    gpgkey: https://getfedora.org/static/fedora.gpg
 
 opensmtpd_extra_packages: "{% if ansible_os_family == 'FreeBSD' %}[ 'opensmtpd-extras-table-passwd' ]{% else %}[]{% endif %}"
 opensmtpd_extra_groups: "{% if ansible_os_family == 'FreeBSD' %}[ 'nobody' ]{% else %}[ 'games' ]{% endif %}"
