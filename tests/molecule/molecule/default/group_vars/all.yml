@@ -33,7 +33,7 @@ opensmtpd_extra_groups: "{% if ansible_os_family == 'FreeBSD' %}[ 'nobody' ]{% e
 
 opensmtpd_config: |
   {% for list in opensmtpd_tables %}
-  {% if list.type == 'passwd' and ansible_distribution == 'Ubuntu' and (ansible_distribution_version == '18.04' or ansible_distribution_version == '14.04') %}  # noqa 204
+  {% if list.type == 'passwd' and (ansible_os_family == 'Debian' or ansible_os_family == 'RedHat') %}
   # XXX at the moment (2018/05/20), the version of opensmtpd-extras is
   # behind opensmtpd, causing "table-api: bad API version".
   # https://packages.ubuntu.com/bionic/opensmtpd-extras
