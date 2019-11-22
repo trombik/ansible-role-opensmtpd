@@ -216,7 +216,7 @@ describe file(config) do
   tables.each do |t|
     path = t[:type] == "db" ? "#{t[:path]}.db" : t[:path]
     its(:content) do
-      if t[:name] == "passwd" && (os[:family] == "ubuntu" || os[:family] == 'redhat')
+      if t[:name] == "passwd" && (os[:family] == "ubuntu" || os[:family] == "redhat")
         pending "#{os[:family]} does not have matched version of opensmtpd-extra"
       end
       should match(/^table #{t[:name]} #{t[:type]}:#{path}$/)

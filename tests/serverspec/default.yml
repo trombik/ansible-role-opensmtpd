@@ -68,6 +68,7 @@
       group: vmail
       home: /var/vmail
       comment: Virtual Mail User
+      mode: "0755"
     opensmtpd_tables:
       - name: aliases
         path: "{{ opensmtpd_conf_dir }}/aliases"

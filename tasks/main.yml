@@ -106,6 +106,17 @@
     - "'type' in item"
     - "item.type == 'db'"
 
+- name: Set mode on opensmtpd_virtual_user['home']
+  file:
+    path: "{{ opensmtpd_virtual_user['home'] }}"
+    mode: "{{ opensmtpd_virtual_user['mode'] }}"
+    state: directory
+  when:
+    - opensmtpd_virtual_user
+    - "'home' in opensmtpd_virtual_user"
+    - "'mode' in opensmtpd_virtual_user"
+
+
 - name: See if database files have been created
   command: "test -f {{ item.path }}.db"
   failed_when: false
