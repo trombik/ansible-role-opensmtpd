@@ -173,7 +173,7 @@ def test_find_digest2_in_maildir(host):
         assert cmd.succeeded
 
 
-def test_find_digest3_in_mbox(host):
+def test_find_digest3_in_maildir(host):
     ansible_vars = get_ansible_vars(host)
     if ansible_vars['inventory_hostname'] == 'server1':
         content = read_digest(host, '/tmp/digest3')
