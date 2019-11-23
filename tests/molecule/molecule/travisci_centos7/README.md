@@ -1,4 +1,4 @@
-## scenario `travisci_centos8`
+## scenario `travisci_centos7`
 
 
 ### Description
