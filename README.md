@@ -262,6 +262,11 @@ None
           - 192.168.21.0/24
 
     opensmtpd_flags: -v
+    os_listen_on_interface:
+      FreeBSD: lo0
+      OpenBSD: lo0
+      Debian: lo
+      RedHat: lo
     opensmtpd_config: |
       {% for list in opensmtpd_tables %}
       {% if list.type == 'passwd' and (ansible_os_family == 'Debian' or ansible_os_family == 'RedHat') %}
@@ -277,7 +282,7 @@ None
       {% endif %}
 
       {% endfor %}
-      listen on {% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}lo0{% else %}lo{% endif %} port 25
+      listen on {{ os_listen_on_interface[ansible_os_family] }} port 25
 
       {% if ansible_os_family == 'OpenBSD' or ansible_os_family == 'FreeBSD' %}
       # new format
