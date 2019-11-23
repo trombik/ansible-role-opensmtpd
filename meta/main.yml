@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Tomoyuki Sakurai
-  role_name: trombik.opensmtpd
+  role_name: opensmtpd
   description: Configures OpenSMTPD
   license: BSD
   company: N/A
