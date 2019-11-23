@@ -1,3 +1,7 @@
+## Release 1.7.1
+
+Fix wrong `role_name`
+
 ## Release 1.7.0
 
 * 8c60ad6 bugfix: s/Ubuntu:/Debian:/ and enable logging on tables
