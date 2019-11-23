@@ -1,3 +1,28 @@
+## Release 1.7.0
+
+* 8c60ad6 bugfix: s/Ubuntu:/Debian:/ and enable logging on tables
+* 666343d bugfix: update meta
+* 3d43978 bugfix: remove `if ... else ...`
+* 6a04a20 bugfix: refactor tests
+* ee58c37 bugfix: s/in_mbox/in_maildir/ in test name
+* 6e727d9 bugfix: remove unused prepare.yml
+* 9b7ea4b doc: add README to `docker` role
+* 9ebe4e6 bugfix: s/centos8/centos7/
+* da42587 bugfix: remove another `if ... else ...` from the example
+* a12de3f bugfix: fix wrong default in opensmtpd_conf_file
+* 22c1362 doc: update README
+* 4171f9b bugfix: add prepare.yml to travisci_ubuntu1804
+* 7390e75 bugfix: install docker_package_ss on other Linux distro
+* 94354aa bugfix: remove unused Dockerfile.j2
+* f5e0ee6 bugfix: add molecule tests for CentOS
+* 547fddd bugfix, feature: allow to change mode of home directory
+* 17d80f5 bugfix: QA
+* 86d4f2d bugfix: reenable qansible
+* c468aad bugfix: update travis.yml
+* 2ad13f4 bugfix: refactor path to home directory
+* b86928e bugfix: list services after play, not before
+* d1f19d9 bugfix: add tests in travis CI
+
 ## Release 1.6.1
 
 * 6bc5dad bugfix: QA
