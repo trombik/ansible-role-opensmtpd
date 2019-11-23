@@ -15,7 +15,7 @@ project_listen_on_port: 25
 project_default_group:
   FreeBSD: wheel
   OpenBSD: wheel
-  Ubuntu: root
+  Debian: root
   RedHat: root
 
 opensmtpd_virtual_user:
@@ -70,7 +70,7 @@ opensmtpd_tables:
     owner: root
     group: "{{ opensmtpd_group }}"
     mode: "0640"
-    no_log: yes
+    no_log: no
     values:
       - "{{ project_test_user }} {{ project_test_password }}"
   - name: passwd
@@ -111,6 +111,7 @@ opensmtpd_tables:
     owner: root
     group: vmail
     mode: "0444"
+    no_log: no
     values:
       - abuse@example.org john@example.org
       - postmaster@example.org john@example.org
