@@ -12,6 +12,12 @@ os_project_listen_on_interface:
 project_listen_on_interface: "{{ os_project_listen_on_interface[ansible_os_family] }}"
 project_listen_on_port: 25
 
+project_default_group:
+  FreeBSD: wheel
+  OpenBSD: wheel
+  Ubuntu: root
+  RedHat: root
+
 opensmtpd_virtual_user:
   name: vmail
   group: vmail
@@ -83,7 +89,7 @@ opensmtpd_tables:
     path: "{{ opensmtpd_conf_dir }}/domains"
     type: file
     owner: root
-    group: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}wheel{% else %}root{% endif %}"
+    group: "{{ project_default_group[ansible_os_family] }}"
     mode: "0644"
     no_log: no
     values:
@@ -92,7 +98,7 @@ opensmtpd_tables:
     path: "{{ opensmtpd_conf_dir }}/virtual_domains"
     type: file
     owner: root
-    group: "{% if ansible_os_family == 'FreeBSD' or ansible_os_family == 'OpenBSD' %}wheel{% else %}root{% endif %}"
+    group: "{{ project_default_group[ansible_os_family] }}"
     mode: "0644"
     no_log: no
     values:
