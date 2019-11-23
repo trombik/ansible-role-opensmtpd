@@ -151,37 +151,32 @@ def test_vagrant_home_dir(host):
     assert f.user == 'vagrant'
 
 
-def test_find_digest1_in_maildir(host):
-    ansible_vars = get_ansible_vars(host)
-    if ansible_vars['inventory_hostname'] == 'server1':
-        content = read_digest(host, '/tmp/digest1')
-        cmd = host.run("grep -- '%s' %s/vagrant/Maildir/new/*",
-                       content, get_home_dir(host))
+def find_digest_in_maildir(host, digest_file, maildir):
+    content = read_digest(host, digest_file)
+    with host.sudo():
+        cmd = host.run("grep -- '%s' %s/new/*",
+                       content, maildir)
 
         assert content is not None
         assert cmd.succeeded
+
+
+def test_find_digest1_in_maildir(host):
+    ansible_vars = get_ansible_vars(host)
+    if ansible_vars['inventory_hostname'] == 'server1':
+        maildir = "%s/vagrant/Maildir" % get_home_dir(host)
+        find_digest_in_maildir(host, '/tmp/digest1', maildir)
 
 
 def test_find_digest2_in_maildir(host):
     ansible_vars = get_ansible_vars(host)
     if ansible_vars['inventory_hostname'] == 'server1':
-        content = read_digest(host, '/tmp/digest2')
-        cmd = host.run("grep -- '%s' %s/vagrant/Maildir/new/*",
-                       content, get_home_dir(host))
-
-        assert content is not None
-        assert cmd.succeeded
+        maildir = "%s/vagrant/Maildir" % get_home_dir(host)
+        find_digest_in_maildir(host, '/tmp/digest2', maildir)
 
 
 def test_find_digest3_in_maildir(host):
     ansible_vars = get_ansible_vars(host)
     if ansible_vars['inventory_hostname'] == 'server1':
-        content = read_digest(host, '/tmp/digest3')
-        with host.sudo():
-            cmd = host.run(
-                    "grep -- '%s' /var/vmail/example.net/john/Maildir/new/*",
-                    content
-                  )
-
-        assert content is not None
-        assert cmd.succeeded
+        maildir = '/var/vmail/example.net/john/Maildir'
+        find_digest_in_maildir(host, '/tmp/digest3', maildir)
