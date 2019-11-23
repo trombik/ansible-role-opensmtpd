@@ -18,7 +18,7 @@ If `opensmtpd-extras` is installed, `opensmtpd` API version must match
 | `opensmtpd_group` | group name of `smtpd(8)` | `{{ __opensmtpd_group }}` |
 | `opensmtpd_service` | service name of `smtpd(8)` | `{{ __opensmtpd_service }}` |
 | `opensmtpd_conf_dir` | path to configuration directory | `{{ __opensmtpd_conf_dir }}` |
-| `opensmtpd_conf_file` | path to `smtpd.conf(5)` | `{{ __opensmtpd_conf_dir }}/smtpd.conf` |
+| `opensmtpd_conf_file` | path to `smtpd.conf(5)` | `{{ opensmtpd_conf_dir }}/smtpd.conf` |
 | `opensmtpd_flags` | optional flags for `smtpd(8)` | `""` |
 | `opensmtpd_package_name` | package name of OpenSMTPD | `{{ __opensmtpd_package_name }}` |
 | `opensmtpd_extra_packages` | list of extra packages to install | `[]` |
