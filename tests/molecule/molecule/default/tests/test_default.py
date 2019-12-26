@@ -153,12 +153,16 @@ def test_vagrant_home_dir(host):
 
 def find_digest_in_maildir(host, digest_file, maildir):
     content = read_digest(host, digest_file)
-    with host.sudo():
+    if not is_docker(host):
+        with host.sudo():
+            cmd = host.run("grep -- '%s' %s/new/*",
+                           content, maildir)
+    else:
         cmd = host.run("grep -- '%s' %s/new/*",
                        content, maildir)
 
-        assert content is not None
-        assert cmd.succeeded
+    assert content is not None
+    assert cmd.succeeded
 
 
 def test_find_digest1_in_maildir(host):
