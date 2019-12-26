@@ -37,12 +37,12 @@ provisioner:
   # XXX this controls `no-log` in auto-generated playbooks by the docker
   # driver
   log: true
-  become: True
+  become: False
   env:
     ANSIBLE_ROLES_PATH: ../../../../../:roles
   options:
     v: True
-    become: True
+    become: False
   config_options:
     defaults:
       retry_files_enabled: false
