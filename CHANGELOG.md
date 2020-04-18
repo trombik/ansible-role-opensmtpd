@@ -1,3 +1,10 @@
+## Release 1.7.2
+
+* 78a771b bugfix: QA
+* 7e3b21d bugfix: update box versions, fix specs in x509
+* 09d1861 bugfix: do not use sudo if docker
+* d12910a bugfix: re-enable qansible
+
 ## Release 1.7.1
 
 Fix wrong `role_name`
