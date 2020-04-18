@@ -21,20 +21,31 @@ provisioner:
     - filter_plugins
 
 platforms:
-  - name: freebsd-12.0-amd64
+  - name: freebsd-12.1-amd64
     driver:
-      box: trombik/ansible-freebsd-12.0-amd64
+      box: trombik/ansible-freebsd-12.1-amd64
       box_check_update: false
     driver_config:
       ssh:
         shell: '/bin/sh'
     provisioner:
       extra_vars:
-        ansible_python_interpreter: '/usr/local/bin/python'
+        ansible_python_interpreter: '/usr/local/bin/python3'
 
   - name: openbsd-6.5-amd64
     driver:
       box: trombik/ansible-openbsd-6.5-amd64
+      box_check_update: false
+    driver_config:
+      ssh:
+        shell: '/bin/sh'
+    provisioner:
+      extra_vars:
+        ansible_python_interpreter: '/usr/local/bin/python3'
+
+  - name: openbsd-6.6-amd64
+    driver:
+      box: trombik/ansible-openbsd-6.6-amd64
       box_check_update: false
     driver_config:
       ssh:
@@ -74,8 +85,9 @@ suites:
       name: shell
       command: rspec -c -f d -I tests/serverspec tests/serverspec/x509_spec.rb
     includes:
-      - freebsd-12.0-amd64
-      - openbsd-6.4-amd64
+      - freebsd-12.1-amd64
+      - openbsd-6.5-amd64
+      - openbsd-6.6-amd64
   - name: without_virtual_user
     provisioner:
       name: ansible_playbook
@@ -84,4 +96,4 @@ suites:
       name: shell
       command: rspec -c -f d -I tests/serverspec tests/serverspec/without_virtual_user_spec.rb
     includes:
-      - freebsd-12.0-amd64
+      - freebsd-12.1-amd64
