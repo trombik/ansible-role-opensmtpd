@@ -20,7 +20,7 @@
       - opensmtpd_virtual_user['home'] is defined
       - opensmtpd_virtual_user['home'] | length > 0
   when:
-    - opensmtpd_virtual_user | bool
+    - opensmtpd_virtual_user | length > 0
 
 - name: Assert items in opensmtpd_tables have mandatory keys
   assert:
@@ -67,7 +67,7 @@
     name: "{{ opensmtpd_virtual_user.group }}"
     state: present
   when:
-    - opensmtpd_virtual_user
+    - opensmtpd_virtual_user | length > 0
 
 - name: Create opensmtpd_virtual_user
   user:
@@ -81,7 +81,7 @@
     shell: /sbin/nologin
     uid: "{{ opensmtpd_virtual_user.uid | default(omit) }}"
   when:
-    - opensmtpd_virtual_user
+    - opensmtpd_virtual_user | length > 0
 
 - name: Create opensmtpd_tables
   template:
@@ -112,7 +112,7 @@
     mode: "{{ opensmtpd_virtual_user['mode'] }}"
     state: directory
   when:
-    - opensmtpd_virtual_user
+    - opensmtpd_virtual_user | length > 0
     - "'home' in opensmtpd_virtual_user"
     - "'mode' in opensmtpd_virtual_user"
 
