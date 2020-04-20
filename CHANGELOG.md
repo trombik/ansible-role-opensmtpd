@@ -1,3 +1,7 @@
+## Release 1.7.3
+
+* 8f46758 bugfix: silence conditional_bare_variables warning
+
 ## Release 1.7.2
 
 * 78a771b bugfix: QA
